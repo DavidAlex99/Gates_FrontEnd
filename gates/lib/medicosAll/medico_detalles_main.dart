@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-/*
 import '../perfil/perfil_tab.dart'; // Asegúrate de crear este archivo.
 import '../servicios/servicios_tab.dart'; // Asegúrate de crear este archivo.
 import '../contacto/contacto_tab.dart'; // Asegúrate de crear este archivo.
-*/
 
 class MedicoDetallesPage extends StatelessWidget {
   final Map medico;
@@ -13,7 +11,7 @@ class MedicoDetallesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text(medico['nombre']),
@@ -27,11 +25,9 @@ class MedicoDetallesPage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            /*
-            PerfilTab(emprendimiento: emprendimiento),
-            ServiciosTab(emprendimiento: emprendimiento),
-            ContactoTab(emprendimiento: emprendimiento),
-            */
+            PerfilTab(medico: medico),
+            ServiciosTab(medico: medico),
+            ContactoTab(medico: medico),
           ],
         ),
       ),

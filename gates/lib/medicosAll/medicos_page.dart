@@ -118,7 +118,7 @@ class _MedicosPageState extends State<MedicosPage> {
               fit: BoxFit.cover,
             ),
             title: Text(medico['nombre']),
-            subtitle: Text('Especilidad: ${medico['especialidad']}'),
+            subtitle: Text('Especialidad: ${medico['especialidad']}'),
             onTap: () {
               Navigator.push(
                 context,
