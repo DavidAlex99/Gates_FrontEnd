@@ -37,7 +37,7 @@ class AuthService {
   Future<String?> register(
       String username, String email, String password, String nombre) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/register/'),
+      Uri.parse('$baseUrl/registerPaciente/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
