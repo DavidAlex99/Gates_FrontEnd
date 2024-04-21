@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'signup_page.dart';
 import 'auth_service.dart'; // Asegúrate de tener este archivo y clase implementados
 import 'session_manager.dart'; // Asegúrate de tener este archivo y clase implementados
+import '../medicosAll/medicos_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -17,8 +18,10 @@ class _LoginPageState extends State<LoginPage> {
     String password = _passwordController.text;
     var userId = await AuthService().login(username, password);
     if (userId != null) {
-      await SessionManager().saveUserId(userId);
-      // Navegar a la página principal o dashboard
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MedicosPage(userId: userId)),
+      );
     } else {
       // Mostrar error
     }

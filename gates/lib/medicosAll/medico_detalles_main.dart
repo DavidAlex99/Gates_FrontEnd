@@ -3,18 +3,23 @@ import '../perfil/perfil_tab.dart'; // Asegúrate de crear este archivo.
 import '../servicios/servicios_tab.dart'; // Asegúrate de crear este archivo.
 import '../contacto/contacto_tab.dart'; // Asegúrate de crear este archivo.
 
-class MedicoDetallesPage extends StatelessWidget {
+class MedicoDetallesPage extends StatefulWidget {
   final Map medico;
 
-  MedicoDetallesPage({required this.medico});
+  MedicoDetallesPage({Key? key, required this.medico}) : super(key: key);
 
+  @override
+  _MedicoDetallesPageState createState() => _MedicoDetallesPageState();
+}
+
+class _MedicoDetallesPageState extends State<MedicoDetallesPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 3, // Número de secciones
       child: Scaffold(
         appBar: AppBar(
-          title: Text(medico['nombre']),
+          title: Text(widget.medico['nombre'] ?? 'Detalle del Medico'),
           bottom: TabBar(
             tabs: [
               Tab(text: 'Perfil'),
@@ -25,9 +30,9 @@ class MedicoDetallesPage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            PerfilTab(medico: medico),
-            ServiciosTab(medico: medico),
-            ContactoTab(medico: medico),
+            PerfilTab(medico: widget.medico),
+            ServiciosTab(medico: widget.medico),
+            ContactoTab(medico: widget.medico),
           ],
         ),
       ),
