@@ -9,6 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 Future<Map> fetchMedicoDetails(int medicoId) async {
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('auth_token');
+  print("Token is: $token"); // Esto mostrará el token en la consola.
 
   final String url = 'http://192.168.100.6:8001/gatesApp/medicos/$medicoId';
   final response = await http.get(
@@ -29,9 +30,12 @@ class ServiciosPage extends StatefulWidget {
 }
 
 class _ServiciosPageState extends State<ServiciosPage> {
-  String? selectedEspecialidad = 'Todos';
   List<dynamic> servicios = [];
   bool loading = false;
+  List<dynamic> filteredServicios = [];
+  String filtroPrecio = 'Todos';
+  String filtroAlfabetico = 'Todos';
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -39,16 +43,20 @@ class _ServiciosPageState extends State<ServiciosPage> {
     fetchServiciosInicial();
   }
 
-  fetchServiciosInicial() async {
+  Future<void> fetchServiciosInicial() async {
     try {
       setState(() {
         loading = true;
       });
-      final url = 'http://192.168.100.6:8001/gatesApp/servicios' +
-          (selectedEspecialidad != 'Todos'
-              ? '?categoria=$selectedEspecialidad'
-              : '');
-      final response = await http.get(Uri.parse(url));
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('auth_token');
+      final url = 'http://192.168.100.6:8001/gatesApp/servicios';
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Token $token', // Añadir el token al encabezado
+        },
+      );
 
       if (response.statusCode == 200) {
         setState(() {
@@ -64,9 +72,10 @@ class _ServiciosPageState extends State<ServiciosPage> {
         loading = false;
       });
     }
+    aplicarFiltros();
   }
 
-  fetchServiciosCercanos() async {
+  Future<void> fetchServiciosCercanos() async {
     var status = await Permission.locationWhenInUse.status;
     if (!status.isGranted) {
       await Permission.locationWhenInUse.request();
@@ -77,27 +86,31 @@ class _ServiciosPageState extends State<ServiciosPage> {
         setState(() {
           loading = true;
         });
-        final position = await Geolocator.getCurrentPosition(
+        Position position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high);
-        final uri =
-            Uri.http('192.168.100.6:8001', '/gatesApp/servicios/cercanos', {
+        final prefs = await SharedPreferences.getInstance();
+        final String? token = prefs.getString('auth_token');
+
+        var queryParams = {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
-          'categoria':
-              selectedEspecialidad == 'Todos' ? '' : selectedEspecialidad,
-        });
+        };
+        var uri = Uri.http(
+            '192.168.100.6:8001', '/gatesApp/servicios/cercanos', queryParams);
 
-        final response = await http.get(uri);
+        final response = await http.get(uri, headers: {
+          'Authorization': 'Token $token',
+        });
 
         if (response.statusCode == 200) {
           setState(() {
             servicios = json.decode(response.body);
           });
         } else {
-          throw Exception('Failed to load servicios with distances');
+          // Manejar el error de carga
         }
       } catch (e) {
-        print('Error fetching servicios with distances: $e');
+        // Manejar el error
       } finally {
         setState(() {
           loading = false;
@@ -126,47 +139,87 @@ class _ServiciosPageState extends State<ServiciosPage> {
     );
   }
 
+  void aplicarFiltros() {
+    filteredServicios =
+        List.from(servicios); // Crear una copia de los servicios
+
+    // Filtrado por precio
+    if (filtroPrecio == 'Ascendente') {
+      filteredServicios.sort((a, b) => (a['precio']).compareTo(b['precio']));
+    } else if (filtroPrecio == 'Descendente') {
+      filteredServicios.sort((a, b) => (b['precio']).compareTo(a['precio']));
+    }
+
+    // Orden alfabético
+    if (filtroAlfabetico == 'Ascendente') {
+      filteredServicios.sort((a, b) => a['nombre'].compareTo(b['nombre']));
+    } else if (filtroAlfabetico == 'Descendente') {
+      filteredServicios.sort((a, b) => b['nombre'].compareTo(a['nombre']));
+    }
+
+    // Filtrado por búsqueda de texto
+    if (searchController.text.isNotEmpty) {
+      filteredServicios = filteredServicios.where((servicio) {
+        return servicio['nombre']
+            .toLowerCase()
+            .contains(searchController.text.toLowerCase());
+      }).toList();
+    }
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Servicios'),
         actions: [
+          IconButton(
+            icon: Icon(Icons.location_on),
+            onPressed:
+                fetchServiciosCercanos, // Este método aún necesita ser implementado
+          ),
           DropdownButton<String>(
-            value: selectedEspecialidad,
-            onChanged: (newValue) {
+            value: filtroPrecio,
+            onChanged: (String? newValue) {
               setState(() {
-                selectedEspecialidad = newValue!;
-                fetchServiciosInicial();
+                filtroPrecio = newValue!;
+                aplicarFiltros();
               });
             },
-            items: <String>[
-              'Todos',
-              'ENTRANTE',
-              'PRINCIPAL',
-              'POSTRE',
-              'BEBIDA',
-              'SNACKS',
-              'OTRO'
-            ].map<DropdownMenuItem<String>>((String value) {
+            items: <String>['Todos', 'Ascendente', 'Descendente']
+                .map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value),
+                child: Text('Precio $value'),
               );
             }).toList(),
           ),
-          IconButton(
-            icon: Icon(Icons.location_on),
-            onPressed: fetchServiciosCercanos,
+          DropdownButton<String>(
+            value: filtroAlfabetico,
+            onChanged: (String? newValue) {
+              setState(() {
+                filtroAlfabetico = newValue!;
+                aplicarFiltros();
+              });
+            },
+            items: <String>['Todos', 'Ascendente', 'Descendente']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text('Alfabético $value'),
+              );
+            }).toList(),
           ),
         ],
       ),
       body: loading
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: servicios.length,
+              itemCount: filteredServicios.length,
               itemBuilder: (context, index) {
-                final servicio = servicios[index];
+                final servicio = filteredServicios[index];
                 final distanciaStr = servicio['distancia'] != null
                     ? "${servicio['distancia'].toStringAsFixed(2)} km"
                     : "Distance not available";

@@ -7,14 +7,14 @@ import 'dart:math';
 class ContactoTab extends StatefulWidget {
   final Map medico;
 
-  ContactoTab({required this.medico});
+  ContactoTab({Key? key, required this.medico}) : super(key: key);
 
   @override
   _ContactoTabState createState() => _ContactoTabState();
 }
 
 class _ContactoTabState extends State<ContactoTab> {
-  GoogleMapController? mapController;
+  late GoogleMapController mapController;
   // para arcar la ubicacion del cliente
   Set<Marker> markers = {};
 
@@ -68,75 +68,80 @@ class _ContactoTabState extends State<ContactoTab> {
     });
 
     // Ubicación del emprendimiento.
-    final LatLng emprendimientoLocation = LatLng(
+    final LatLng medicoLocation = LatLng(
         double.tryParse('${widget.medico['contacto']['latitud']}') ?? 0,
         double.tryParse('${widget.medico['contacto']['longitud']}') ?? 0);
 
     // Crear LatLngBounds
     final LatLngBounds bounds = LatLngBounds(
       southwest: LatLng(
-        min(emprendimientoLocation.latitude, position.latitude),
-        min(emprendimientoLocation.longitude, position.longitude),
+        min(medicoLocation.latitude, position.latitude),
+        min(medicoLocation.longitude, position.longitude),
       ),
       northeast: LatLng(
-        max(emprendimientoLocation.latitude, position.latitude),
-        max(emprendimientoLocation.longitude, position.longitude),
+        max(medicoLocation.latitude, position.latitude),
+        max(medicoLocation.longitude, position.longitude),
       ),
     );
 
     // Ajustar la cámara para mostrar ambos marcadores
-    mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
+    mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
   }
   // fin obtener permiso ubicacion del cliente
 
   @override
   Widget build(BuildContext context) {
+    final contacto = widget.medico['contacto'];
+    final lat = contacto['latitud'];
+    final lng = contacto['longitud'];
+
     return SingleChildScrollView(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 300.0,
-            child: GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: LatLng(widget.medico['contacto']['latitud'],
-                    widget.medico['contacto']['longitud']),
-                zoom: 16.0,
+          if (lat != null && lng != null)
+            Container(
+              height: 250,
+              child: GoogleMap(
+                onMapCreated: _onMapCreated,
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(lat, lng),
+                  zoom: 16.0,
+                ),
+                markers: markers,
               ),
-              markers: markers,
             ),
-          ),
           ElevatedButton(
             onPressed: _getUserLocation,
             child: Text('Mostrar mi ubicación'),
           ),
-          // Las siguientes ListTiles son iguales que en tu código anterior.
           ListTile(
-            title: Text('Dirección:'),
-            subtitle:
-                Text(widget.medico['contacto']['direccion'] ?? 'No disponible'),
             leading: Icon(Icons.location_on),
+            title: Text('Dirección'),
+            subtitle: Text(contacto['direccion'] ?? 'No disponible'),
           ),
           ListTile(
-            title: Text('Teléfono:'),
-            subtitle:
-                Text(widget.medico['contacto']['telefono'] ?? 'No disponible'),
             leading: Icon(Icons.phone),
+            title: Text('Teléfono'),
+            subtitle: Text(contacto['telefono'] ?? 'No disponible'),
           ),
           ListTile(
-            title: Text('Correo Electrónico:'),
-            subtitle:
-                Text(widget.medico['contacto']['correo'] ?? 'No disponible'),
             leading: Icon(Icons.email),
+            title: Text('Correo Electrónico'),
+            subtitle: Text(contacto['correo'] ?? 'No disponible'),
           ),
-          for (var img in widget.medico['contacto']['imagenesContacto'] ?? [])
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Image.network(
-                img['imagen'],
-                fit: BoxFit.cover,
-              ),
+          // Imágenes de contacto si existen
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              'Imágenes de contacto',
+              style: Theme.of(context).textTheme.headline6,
             ),
+          ),
+          ...?contacto['imagenesContacto']?.map((img) => Image.network(
+                'http://192.168.100.6:8001${img['imagen']}',
+                fit: BoxFit.cover,
+              )),
         ],
       ),
     );

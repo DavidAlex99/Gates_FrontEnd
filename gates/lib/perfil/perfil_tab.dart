@@ -3,26 +3,53 @@ import 'package:flutter/material.dart';
 class PerfilTab extends StatelessWidget {
   final Map medico;
 
-  PerfilTab({required this.medico});
+  PerfilTab({Key? key, required this.medico}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var perfil = medico['perfil']; // Asumimos que esta clave existe en el mapa.
+    Map perfil = medico['perfil'] ?? {};
+    List<dynamic> imagenesPerfil = perfil['imagenesPerfil'] ?? [];
 
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              perfil['descripcion'],
-              style: TextStyle(fontSize: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Título: ${perfil['titulo'] ?? 'No disponible'}',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
-          ),
-          ...perfil['imagenesPerfil']
-              .map((img) => Image.network(img['imagen']))
-              .toList(),
-        ],
+            SizedBox(height: 10),
+            Text(
+              'Descripción: ${perfil['descripcion'] ?? 'No disponible'}',
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Imágenes del Perfil:',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            SizedBox(height: 10.0),
+            ...imagenesPerfil.map((imagen) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Image.network(
+                  'http://192.168.100.6:8001${imagen['imagen']}',
+                  fit: BoxFit.cover,
+                ),
+              );
+            }).toList(),
+          ],
+        ),
       ),
     );
   }

@@ -10,6 +10,7 @@ import './servicios_page.dart';
 Future<Map> fetchMedicoDetails(int medicoId) async {
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('auth_token');
+  print("Token is: $token"); // Esto mostrará el token en la consola.
 
   final String url = 'http://192.168.100.6:8001/gatesApp/medicos/$medicoId';
   final response = await http.get(
@@ -44,16 +45,23 @@ class _MedicosPageState extends State<MedicosPage> {
     fetchMedicosInicial();
   }
 
-  fetchMedicosInicial() async {
+  Future<void> fetchMedicosInicial() async {
     try {
       setState(() {
         loading = true;
       });
+      final prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('auth_token');
       final url = 'http://192.168.100.6:8001/gatesApp/medicos' +
           (selectedEspecialidad != 'Todos'
               ? '?categoria=$selectedEspecialidad'
               : '');
-      final response = await http.get(Uri.parse(url));
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Token $token', // Añadir el token al encabezado
+        },
+      );
 
       if (response.statusCode == 200) {
         setState(() {
@@ -83,6 +91,10 @@ class _MedicosPageState extends State<MedicosPage> {
         setState(() {
           loading = true;
         });
+
+        final prefs = await SharedPreferences.getInstance();
+        final String? token = prefs.getString('auth_token');
+
         final position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high);
         final uri =
@@ -93,7 +105,9 @@ class _MedicosPageState extends State<MedicosPage> {
               selectedEspecialidad == 'Todos' ? '' : selectedEspecialidad,
         });
 
-        final response = await http.get(uri);
+        final response = await http.get(uri, headers: {
+          'Authorization': 'Token $token', // Añadir el token al encabezado
+        });
 
         if (response.statusCode == 200) {
           setState(() {
@@ -172,27 +186,6 @@ class _MedicosPageState extends State<MedicosPage> {
               );
             },
           ),
-          // re direccion a otro filtro
-          /*
-          IconButton(
-            icon: Icon(Icons.medical_information),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ComidasPage()),
-              );
-            },
-          ),*/
-          /*
-          IconButton(
-            icon: Icon(Icons.party_mode),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EventosPage()),
-              );
-            },
-          ),*/
         ],
       ),
       body: loading
@@ -215,9 +208,16 @@ class _MedicosPageState extends State<MedicosPage> {
                   subtitle: Text(
                       'Dirección: ${medico['direccion']}\nDistancia: $distanciaStr'),
                   onTap: () async {
+                    print('Tap on ${medico['nombre']}');
                     try {
                       final medicoDetails =
                           await fetchMedicoDetails(medico['id']);
+                      print('Nombre: ${medicoDetails['nombre']}');
+                      print('Especialidad: ${medicoDetails['especialidad']}');
+                      print('Perfil: ${medicoDetails['perfil']}');
+                      print('Contacto: ${medicoDetails['contacto']}');
+                      print('Servicios: ${medicoDetails['servicios']}');
+                      print('Citas: ${medicoDetails['citas']}');
                       Navigator.push(
                           context,
                           MaterialPageRoute(
