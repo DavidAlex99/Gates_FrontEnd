@@ -4,6 +4,7 @@ import '../servicios/servicios_tab.dart';
 import '../contacto/contacto_tab.dart'; // Asegúrate de crear este archivo.
 import '../citas/citas_tab.dart'; // Asegúrate de crear este archivo.
 import '../buzonQueja/quejas_tab.dart';
+import '../resenas/resenas_tab.dart';
 
 class MedicoDetallesPage extends StatefulWidget {
   final Map medico;
@@ -23,7 +24,7 @@ class _MedicoDetallesPageState extends State<MedicoDetallesPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4, // Número de pestañas
+      length: 5, // Número de pestañas
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.medico['nombre'] ?? 'Detalle del Medico'),
@@ -39,6 +40,7 @@ class _MedicoDetallesPageState extends State<MedicoDetallesPage> {
               Tab(icon: Icon(Icons.healing), text: 'Servicios'),
               Tab(icon: Icon(Icons.contacts), text: 'Contacto'),
               Tab(icon: Icon(Icons.calendar_today), text: 'Citas'),
+              Tab(text: 'Deja tu opinión'),
             ],
           ),
         ),
@@ -48,6 +50,7 @@ class _MedicoDetallesPageState extends State<MedicoDetallesPage> {
             ServiciosTab(medico: widget.medico),
             ContactoTab(medico: widget.medico),
             CitasTab(medico: widget.medico),
+            ResenasTab(medico: widget.medico),
             //ServiciosTab(medico: widget.medico),
           ],
         ),
