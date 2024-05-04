@@ -3,6 +3,7 @@ import '../perfil/perfil_tab.dart';
 import '../servicios/servicios_tab.dart';
 import '../contacto/contacto_tab.dart'; // Asegúrate de crear este archivo.
 import '../citas/citas_tab.dart'; // Asegúrate de crear este archivo.
+import '../buzonQueja/quejas_tab.dart';
 
 class MedicoDetallesPage extends StatefulWidget {
   final Map medico;
@@ -14,6 +15,11 @@ class MedicoDetallesPage extends StatefulWidget {
 }
 
 class _MedicoDetallesPageState extends State<MedicoDetallesPage> {
+  void _openQuejasTab() {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => QuejasTab(medico: widget.medico)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -21,6 +27,12 @@ class _MedicoDetallesPageState extends State<MedicoDetallesPage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.medico['nombre'] ?? 'Detalle del Medico'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.report_problem),
+              onPressed: _openQuejasTab,
+            ),
+          ],
           bottom: TabBar(
             tabs: [
               Tab(icon: Icon(Icons.person), text: 'Perfil'),
