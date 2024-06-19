@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'medico_detalles_main.dart'; // Asegúrate de que esta ruta es correcta
+import 'farmacia_detalles_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import './servicios_page.dart';
-import './farmacias_page.dart';
+import './medicamentos_page.dart';
+import './medicos_page.dart';
 
-Future<Map> fetchMedicoDetails(int medicoId) async {
+Future<Map> fetchFarmaciaDetails(int farmaciaId) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? token =
       prefs.getString('token'); // Obtener el token de SharedPreferences
-  print('token en fetchMedicoDetails:');
+  print('token en fetchFarmaciaDetails:');
   print(token);
 
-  final String url = 'http://192.168.100.6:8001/gatesApp/medicos/$medicoId';
+  final String url = 'http://192.168.100.6:8001/gatesApp/farmacias/$farmaciaId';
   final response = await http.get(
     Uri.parse(url),
     headers: {
@@ -26,53 +26,48 @@ Future<Map> fetchMedicoDetails(int medicoId) async {
   if (response.statusCode == 200) {
     return json.decode(response.body);
   } else {
-    throw Exception('Failed to load medico details');
+    throw Exception('Failed to load farmacia details');
   }
 }
 
-class MedicosPage extends StatefulWidget {
+class FarmaciasPage extends StatefulWidget {
   final String userId;
 
-  MedicosPage({Key? key, required this.userId}) : super(key: key);
+  FarmaciasPage({Key? key, required this.userId}) : super(key: key);
 
   @override
-  _MedicosPageState createState() => _MedicosPageState();
+  _FarmaciasPageState createState() => _FarmaciasPageState();
 }
 
-class _MedicosPageState extends State<MedicosPage> {
-  String selectedEspecialidad = 'Todos';
+class _FarmaciasPageState extends State<FarmaciasPage> {
+  //String selectedEspecialidad = 'Todos';
   bool loading = false;
-  List<dynamic> medicos = [];
+  List<dynamic> farmacias = [];
 
   @override
   void initState() {
     super.initState();
-    fetchMedicosInicial();
+    fetchFarmaciasInicial();
   }
 
-  Future<void> fetchMedicosInicial() async {
+  Future<void> fetchFarmaciasInicial() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token =
-          prefs.getString('token'); // Obtener el token de SharedPreferences
-      print('token en fetchMedicosInicial:');
+      String? token = prefs.getString('token');
+      print('token en fetchFarmaciasInicial:');
       print(token);
 
       setState(() {
         loading = true;
       });
 
-      final url = 'http://192.168.100.6:8001/gatesApp/medicos' +
-          (selectedEspecialidad != 'Todos'
-              ? '?categoria=$selectedEspecialidad'
-              : '');
+      final url = 'http://192.168.100.6:8001/gatesApp/farmacias';
 
       final response = await http.get(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization':
-              'Token $token', // Añadir el encabezado de autorización
+          'Authorization': 'Token $token',
         },
       );
 
@@ -80,13 +75,14 @@ class _MedicosPageState extends State<MedicosPage> {
         var jsonResponse = json.decode(response.body);
         if (jsonResponse != null && jsonResponse.isNotEmpty) {
           setState(() {
-            medicos = jsonResponse;
-            print(medicos);
+            farmacias = jsonResponse;
+            print(farmacias);
           });
         } else {
-          print('No hay medicos disponibles.');
+          print('No hay farmacias disponibles.');
+          // Manejo de no hay datos
           setState(() {
-            medicos = [];
+            farmacias = []; // Asegúrate de manejar una lista vacía en el UI
           });
         }
       } else {
@@ -97,7 +93,7 @@ class _MedicosPageState extends State<MedicosPage> {
     } catch (e) {
       print('Error fetching medicos: $e');
       setState(() {
-        medicos = [];
+        farmacias = [];
       });
     } finally {
       setState(() {
@@ -106,7 +102,7 @@ class _MedicosPageState extends State<MedicosPage> {
     }
   }
 
-  fetchMedicosCercanos() async {
+  fetchFarmaciasCercanos() async {
     var status = await Permission.locationWhenInUse.status;
     if (!status.isGranted) {
       await Permission.locationWhenInUse.request();
@@ -127,15 +123,13 @@ class _MedicosPageState extends State<MedicosPage> {
           throw Exception('Authentication token not available');
         }
 
-        print('token en fetchMedicosCercanos');
+        print('token en fetchFarmaciasCercanos');
         print(token);
 
-        final uri =
-            Uri.http('192.168.100.6:8001', '/gatesApp/medicos/cercanos', {
+        final uri = Uri.http(
+            '192.168.100.6:8001', '/gatesApp/farmacias/cercanos', {
           'lat': position.latitude.toString(),
-          'lon': position.longitude.toString(),
-          'especialidad':
-              selectedEspecialidad == 'Todos' ? '' : selectedEspecialidad,
+          'lon': position.longitude.toString()
         });
 
         final response = await http.get(uri, headers: {
@@ -144,13 +138,13 @@ class _MedicosPageState extends State<MedicosPage> {
 
         if (response.statusCode == 200) {
           setState(() {
-            medicos = json.decode(response.body);
+            farmacias = json.decode(response.body);
           });
         } else {
-          throw Exception('Failed to load medicos with distances');
+          throw Exception('Failed to load farmacias with distances');
         }
       } catch (e) {
-        print('Error fetching medicos with distances: $e');
+        print('Error fetching farmacias with distances: $e');
       } finally {
         setState(() {
           loading = false;
@@ -184,38 +178,18 @@ class _MedicosPageState extends State<MedicosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Medicos'),
+        title: Text('Farmacias'),
         actions: [
-          DropdownButton<String>(
-            value: selectedEspecialidad,
-            onChanged: (newValue) {
-              setState(() {
-                selectedEspecialidad = newValue!;
-                fetchMedicosInicial();
-              });
-            },
-            items: <String>[
-              'Todos',
-              'CARDIOLOGO',
-              'PEDIATRA',
-              'NEUROLOGO',
-            ].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
           IconButton(
             icon: Icon(Icons.location_on),
-            onPressed: fetchMedicosCercanos,
+            onPressed: fetchFarmaciasCercanos,
           ),
           IconButton(
             icon: Icon(Icons.restaurant_menu),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ServiciosPage()),
+                MaterialPageRoute(builder: (context) => MedicamentosPage()),
               );
             },
           ),
@@ -269,51 +243,57 @@ class _MedicosPageState extends State<MedicosPage> {
       ),
       body: loading
           ? Center(child: CircularProgressIndicator())
-          : medicos.isEmpty
+          : farmacias.isEmpty
               ? Center(child: Text("No hay farmacias disponibles"))
               : ListView.builder(
-                  itemCount: medicos.length,
+                  itemCount: farmacias.length,
                   itemBuilder: (context, index) {
-                    final medico = medicos[index];
-                    final distanciaStr = medico['distancia'] != null
-                        ? "${medico['distancia'].toStringAsFixed(2)} km"
+                    final farmacia = farmacias[index];
+                    final distanciaStr = farmacia['distancia'] != null
+                        ? "${farmacia['distancia'].toStringAsFixed(2)} km"
                         : "Distance not available";
                     return ListTile(
-                      leading: Image.network(
-                        medico['imagen'],
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
-                      title: Text(medico['nombre']),
+                      leading: farmacia['imagen'] != null
+                          ? Image.network(
+                              farmacia['imagen'],
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset(
+                              'assets/images/defecto.png',
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                      title: Text(
+                          farmacia['nombreFarmacia'] ?? "Nombre no disponible"),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                              'Dirección: ${(medico['contacto']?['direccion'] ?? 'No disponible')} y ${(medico['contacto']?['direccion_secundaria'] ?? 'No disponible')}'),
+                              'Dirección: ${(farmacia['contactoFarmacia']?['direccion'] ?? 'No disponible')} y ${(farmacia['contactoFarmacia']?['direccion_secundaria'] ?? 'No disponible')}'),
                           Text('Distancia: $distanciaStr'),
                         ],
                       ),
                       onTap: () async {
-                        print('Tap on ${medico['nombre']}');
+                        print('Tap on ${farmacia['nombreFarmacia']}');
                         try {
-                          final medicoDetails =
-                              await fetchMedicoDetails(medico['id']);
-                          print('Nombre: ${medicoDetails['nombre']}');
+                          final farmaciaDetails =
+                              await fetchFarmaciaDetails(farmacia['id']);
+                          print('Nombre: ${farmaciaDetails['nombreFarmacia']}');
                           print(
-                              'Especialidad: ${medicoDetails['especialidad']}');
-                          print('Perfil: ${medicoDetails['perfil']}');
-                          print('Contacto: ${medicoDetails['contacto']}');
-                          print('Servicios: ${medicoDetails['servicios']}');
-                          print('Citas: ${medicoDetails['citas']}');
+                              'Contacto: ${farmaciaDetails['contactoFarmacia']}');
+                          print(
+                              'Servicios: ${farmaciaDetails['medicamentos']}');
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    MedicoDetallesPage(medico: medicoDetails),
+                                builder: (context) => FarmaciaDetallesPage(
+                                    farmacia: farmaciaDetails),
                               ));
                         } catch (e) {
-                          print('Error navigating to medico details: $e');
+                          print('Error navigating to farmacia details: $e');
                         }
                       },
                     );

@@ -39,15 +39,21 @@ class PerfilTab extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10.0),
-            ...imagenesPerfil.map((imagen) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Image.network(
-                  'http://192.168.100.6:8001${imagen['imagen']}',
-                  fit: BoxFit.cover,
-                ),
-              );
-            }).toList(),
+            if (imagenesPerfil.isEmpty)
+              Text(
+                'No hay imágenes disponibles en la galería.',
+                style: Theme.of(context).textTheme.bodyText2,
+              )
+            else
+              ...imagenesPerfil.map((imagen) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Image.network(
+                    'http://192.168.100.6:8001${imagen['imagen']}',
+                    fit: BoxFit.cover,
+                  ),
+                );
+              }).toList(),
           ],
         ),
       ),

@@ -4,16 +4,16 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:math';
 
-class ContactoTab extends StatefulWidget {
-  final Map medico;
+class ContactoFarmaciaTab extends StatefulWidget {
+  final Map farmacia;
 
-  ContactoTab({Key? key, required this.medico}) : super(key: key);
+  ContactoFarmaciaTab({Key? key, required this.farmacia}) : super(key: key);
 
   @override
-  _ContactoTabState createState() => _ContactoTabState();
+  _ContactoFarmaciaTabState createState() => _ContactoFarmaciaTabState();
 }
 
-class _ContactoTabState extends State<ContactoTab> {
+class _ContactoFarmaciaTabState extends State<ContactoFarmaciaTab> {
   late GoogleMapController mapController;
   // para arcar la ubicacion del cliente
   Set<Marker> markers = {};
@@ -22,12 +22,13 @@ class _ContactoTabState extends State<ContactoTab> {
   void initState() {
     super.initState();
     // Inicializar el marcador del emprendimiento desde el inicio.
-    final latitud = double.tryParse('${widget.medico['contacto']?['latitud']}');
+    final latitud =
+        double.tryParse('${widget.farmacia['contactoFarmacia']?['latitud']}');
     final longitud =
-        double.tryParse('${widget.medico['contacto']?['longitud']}');
+        double.tryParse('${widget.farmacia['contactoFarmacia']?['longitud']}');
     if (latitud != null && longitud != null) {
       markers.add(Marker(
-        markerId: MarkerId("medicoLocation"),
+        markerId: MarkerId("farmaciaLocation"),
         position: LatLng(latitud, longitud),
       ));
     }
@@ -68,19 +69,19 @@ class _ContactoTabState extends State<ContactoTab> {
     });
 
     // Ubicación del emprendimiento.
-    final LatLng medicoLocation = LatLng(
-        double.tryParse('${widget.medico['contacto']['latitud']}') ?? 0,
-        double.tryParse('${widget.medico['contacto']['longitud']}') ?? 0);
+    final LatLng farmaciaLocation = LatLng(
+        double.tryParse('${widget.farmacia['contacto']['latitud']}') ?? 0,
+        double.tryParse('${widget.farmacia['contacto']['longitud']}') ?? 0);
 
     // Crear LatLngBounds
     final LatLngBounds bounds = LatLngBounds(
       southwest: LatLng(
-        min(medicoLocation.latitude, position.latitude),
-        min(medicoLocation.longitude, position.longitude),
+        min(farmaciaLocation.latitude, position.latitude),
+        min(farmaciaLocation.longitude, position.longitude),
       ),
       northeast: LatLng(
-        max(medicoLocation.latitude, position.latitude),
-        max(medicoLocation.longitude, position.longitude),
+        max(farmaciaLocation.latitude, position.latitude),
+        max(farmaciaLocation.longitude, position.longitude),
       ),
     );
 
@@ -91,9 +92,9 @@ class _ContactoTabState extends State<ContactoTab> {
 
   @override
   Widget build(BuildContext context) {
-    final contacto = widget.medico['contacto'] ?? {};
-    final lat = contacto['latitud'];
-    final lng = contacto['longitud'];
+    final contactoFarmacia = widget.farmacia['contactoFarmacia'] ?? {};
+    final lat = contactoFarmacia['latitud'];
+    final lng = contactoFarmacia['longitud'];
 
     return SingleChildScrollView(
       child: Column(
@@ -118,19 +119,18 @@ class _ContactoTabState extends State<ContactoTab> {
           ListTile(
             leading: Icon(Icons.location_on),
             title: Text('Dirección'),
-            subtitle: Text(contacto['direccion'] ?? 'No disponible'),
+            subtitle: Text(contactoFarmacia['direccion'] ?? 'No disponible'),
           ),
           ListTile(
             leading: Icon(Icons.phone),
             title: Text('Teléfono'),
-            subtitle: Text(contacto['telefono'] ?? 'No disponible'),
+            subtitle: Text(contactoFarmacia['telefono'] ?? 'No disponible'),
           ),
           ListTile(
             leading: Icon(Icons.email),
             title: Text('Correo Electrónico'),
-            subtitle: Text(contacto['correo'] ?? 'No disponible'),
+            subtitle: Text(contactoFarmacia['correo'] ?? 'No disponible'),
           ),
-          // Imágenes de contacto si existen
           Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
@@ -138,9 +138,9 @@ class _ContactoTabState extends State<ContactoTab> {
               style: Theme.of(context).textTheme.headline6,
             ),
           ),
-          if (contacto['imagenesContacto'] != null &&
-              (contacto['imagenesContacto'] as List).isNotEmpty)
-            ...contacto['imagenesContacto']
+          if (contactoFarmacia['imagenesContacto'] != null &&
+              (contactoFarmacia['imagenesContacto'] as List).isNotEmpty)
+            ...contactoFarmacia['imagenesContacto']
                 .map((img) => Image.network(
                       'http://192.168.100.6:8001${img['imagen']}',
                       fit: BoxFit.cover,

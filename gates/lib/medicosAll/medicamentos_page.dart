@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import './medico_detalles_main.dart';
+import './farmacia_detalles_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-Future<Map> fetchMedicoDetails(int medicoId) async {
+Future<Map> fetchFarmaciaDetails(int farmaciaId) async {
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('token');
   print("Token is: $token"); // Esto mostrará el token en la consola.
 
-  final String url = 'http://192.168.100.6:8001/gatesApp/medicos/$medicoId';
+  final String url = 'http://192.168.100.6:8001/gatesApp/farmacias/$farmaciaId';
   final response = await http.get(
     Uri.parse(url),
     headers: token != null ? {'Authorization': 'Token $token'} : {},
@@ -20,19 +20,19 @@ Future<Map> fetchMedicoDetails(int medicoId) async {
   if (response.statusCode == 200) {
     return json.decode(response.body);
   } else {
-    throw Exception('Failed to load medico details');
+    throw Exception('Failed to load farmacia details');
   }
 }
 
-class ServiciosPage extends StatefulWidget {
+class MedicamentosPage extends StatefulWidget {
   @override
-  _ServiciosPageState createState() => _ServiciosPageState();
+  _MedicamentosPageState createState() => _MedicamentosPageState();
 }
 
-class _ServiciosPageState extends State<ServiciosPage> {
-  List<dynamic> servicios = [];
+class _MedicamentosPageState extends State<MedicamentosPage> {
+  List<dynamic> medicamentos = [];
   bool loading = false;
-  List<dynamic> filteredServicios = [];
+  List<dynamic> filteredMedicamentos = [];
   String filtroPrecio = 'Todos';
   String filtroAlfabetico = 'Todos';
   TextEditingController searchController = TextEditingController();
@@ -40,10 +40,10 @@ class _ServiciosPageState extends State<ServiciosPage> {
   @override
   void initState() {
     super.initState();
-    fetchServiciosInicial();
+    fetchMedicamentosInicial();
   }
 
-  Future<void> fetchServiciosInicial() async {
+  Future<void> fetchMedicamentosInicial() async {
     try {
       setState(() {
         loading = true;
@@ -52,10 +52,10 @@ class _ServiciosPageState extends State<ServiciosPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token =
           prefs.getString('token'); // Obtener el token de SharedPreferences
-      print('token en fetchServiciosInicial:');
+      print('token en fetchMedicamentosInicial:');
       print(token);
 
-      final url = 'http://192.168.100.6:8001/gatesApp/servicios';
+      final url = 'http://192.168.100.6:8001/gatesApp/medicamentos';
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -65,10 +65,10 @@ class _ServiciosPageState extends State<ServiciosPage> {
 
       if (response.statusCode == 200) {
         setState(() {
-          servicios = json.decode(response.body);
+          medicamentos = json.decode(response.body);
         });
       } else {
-        throw Exception('Failed to load servicios');
+        throw Exception('Failed to load medicamentos');
       }
     } catch (e) {
       print('Error fetching servicios: $e');
@@ -80,7 +80,7 @@ class _ServiciosPageState extends State<ServiciosPage> {
     aplicarFiltros();
   }
 
-  Future<void> fetchServiciosCercanos() async {
+  Future<void> fetchMedicamentosCercanos() async {
     var status = await Permission.locationWhenInUse.status;
     if (!status.isGranted) {
       await Permission.locationWhenInUse.request();
@@ -96,15 +96,15 @@ class _ServiciosPageState extends State<ServiciosPage> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? token =
             prefs.getString('token'); // Obtener el token de SharedPreferences
-        print('token en fetchServiciosCercanos:');
+        print('token en fetchFarmaciasCercanos:');
         print(token);
 
         var queryParams = {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
         };
-        var uri = Uri.http(
-            '192.168.100.6:8001', '/gatesApp/servicios/cercanos', queryParams);
+        var uri = Uri.http('192.168.100.6:8001',
+            '/gatesApp/medicamentos/cercanos', queryParams);
 
         final response = await http.get(uri, headers: {
           'Authorization': 'Token $token',
@@ -112,7 +112,7 @@ class _ServiciosPageState extends State<ServiciosPage> {
 
         if (response.statusCode == 200) {
           setState(() {
-            servicios = json.decode(response.body);
+            medicamentos = json.decode(response.body);
           });
         } else {
           // Manejar el error de carga
@@ -148,27 +148,27 @@ class _ServiciosPageState extends State<ServiciosPage> {
   }
 
   void aplicarFiltros() {
-    filteredServicios =
-        List.from(servicios); // Crear una copia de los servicios
+    filteredMedicamentos =
+        List.from(medicamentos); // Crear una copia de los servicios
 
     // Filtrado por precio
     if (filtroPrecio == 'Ascendente') {
-      filteredServicios.sort((a, b) => (a['precio']).compareTo(b['precio']));
+      filteredMedicamentos.sort((a, b) => (a['precio']).compareTo(b['precio']));
     } else if (filtroPrecio == 'Descendente') {
-      filteredServicios.sort((a, b) => (b['precio']).compareTo(a['precio']));
+      filteredMedicamentos.sort((a, b) => (b['precio']).compareTo(a['precio']));
     }
 
     // Orden alfabético
     if (filtroAlfabetico == 'Ascendente') {
-      filteredServicios.sort((a, b) => a['nombre'].compareTo(b['nombre']));
+      filteredMedicamentos.sort((a, b) => a['nombre'].compareTo(b['nombre']));
     } else if (filtroAlfabetico == 'Descendente') {
-      filteredServicios.sort((a, b) => b['nombre'].compareTo(a['nombre']));
+      filteredMedicamentos.sort((a, b) => b['nombre'].compareTo(a['nombre']));
     }
 
     // Filtrado por búsqueda de texto
     if (searchController.text.isNotEmpty) {
-      filteredServicios = filteredServicios.where((servicio) {
-        return servicio['nombre']
+      filteredMedicamentos = filteredMedicamentos.where((medicamento) {
+        return medicamento['nombre']
             .toLowerCase()
             .contains(searchController.text.toLowerCase());
       }).toList();
@@ -181,12 +181,12 @@ class _ServiciosPageState extends State<ServiciosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Servicios'),
+        title: Text('Medicamentos'),
         actions: [
           IconButton(
             icon: Icon(Icons.location_on),
             onPressed:
-                fetchServiciosCercanos, // Este método aún necesita ser implementado
+                fetchMedicamentosCercanos, // Este método aún necesita ser implementado
           ),
           DropdownButton<String>(
             value: filtroPrecio,
@@ -225,29 +225,29 @@ class _ServiciosPageState extends State<ServiciosPage> {
       body: loading
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: filteredServicios.length,
+              itemCount: filteredMedicamentos.length,
               itemBuilder: (context, index) {
-                final servicio = filteredServicios[index];
-                final distanciaStr = servicio['distancia'] != null
-                    ? "${servicio['distancia'].toStringAsFixed(2)} km"
+                final medicamento = filteredMedicamentos[index];
+                final distanciaStr = medicamento['distancia'] != null
+                    ? "${medicamento['distancia'].toStringAsFixed(2)} km"
                     : "Distance not available";
                 return ListTile(
-                  title: Text(servicio['nombre']),
+                  title: Text(medicamento['nombre']),
                   subtitle: Text(
-                      '${servicio['descripcion']} - \$${servicio['precio']} - Distancia: $distanciaStr'),
-                  leading: servicio['imagen'] != null
-                      ? Image.network(servicio['imagen'],
+                      '${medicamento['descripcion']} - \$${medicamento['precio']} - Distancia: $distanciaStr'),
+                  leading: medicamento['imagen'] != null
+                      ? Image.network(medicamento['imagen'],
                           width: 100, height: 100, fit: BoxFit.cover)
                       : null,
                   onTap: () async {
                     try {
-                      final medicoDetails = await fetchMedicoDetails(
-                          servicio['emprendimiento_id']);
+                      final farmaciaDetails = await fetchFarmaciaDetails(
+                          medicamento['farmacia_id']);
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                MedicoDetallesPage(medico: medicoDetails),
+                                FarmaciaDetallesPage(farmacia: farmaciaDetails),
                           ));
                     } catch (e) {
                       print('Error navigating to medico details: $e');

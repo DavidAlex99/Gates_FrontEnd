@@ -11,17 +11,22 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _nombreController =
+  final _telefonoController =
       TextEditingController(); // Campo adicional para el teléfono
 
   void _register() async {
     String username = _usernameController.text;
     String email = _emailController.text;
+    String firstName = _firstNameController.text;
+    String lastName = _lastNameController.text;
     String password = _passwordController.text;
-    String nombre = _nombreController.text; // Recolectar el valor del teléfono
-    String? userId =
-        await AuthService().register(username, email, password, nombre);
+    String telefono =
+        _telefonoController.text; // Recolectar el valor del teléfono
+    String? userId = await AuthService()
+        .register(username, email, firstName, lastName, password, telefono);
     if (userId != null) {
       // pasar el userId del usuario actual
       Navigator.pushReplacement(
@@ -61,20 +66,28 @@ class _SignupPageState extends State<SignupPage> {
           children: <Widget>[
             TextField(
               controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+              decoration: InputDecoration(labelText: 'Usuario'),
+            ),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(labelText: 'Contrasena'),
             ),
             TextField(
               controller: _emailController,
               decoration: InputDecoration(labelText: 'Email'),
             ),
             TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
+              controller: _firstNameController,
+              decoration: InputDecoration(labelText: 'Nombre'),
             ),
             TextField(
-              controller: _nombreController,
-              decoration: InputDecoration(labelText: 'Nombre'),
+              controller: _lastNameController,
+              decoration: InputDecoration(labelText: 'Apellido'),
+            ),
+            TextField(
+              controller: _telefonoController,
+              decoration: InputDecoration(labelText: 'Telefono'),
             ),
             ElevatedButton(
               onPressed: _register,

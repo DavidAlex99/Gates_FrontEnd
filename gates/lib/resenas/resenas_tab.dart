@@ -28,8 +28,12 @@ class _ResenasTabState extends State<ResenasTab> {
       _isLoading = true;
     });
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final String? token = prefs.getString('auth_token');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token =
+          prefs.getString('token'); // Obtener el token de SharedPreferences
+      print('token en _fetchResenas:');
+      print(token);
+
       if (token == null) {
         throw Exception('Authentication token is not available.');
       }
@@ -37,7 +41,11 @@ class _ResenasTabState extends State<ResenasTab> {
       final response = await http.get(
         Uri.parse(
             "http://192.168.100.6:8001/gatesApp/medicos/${widget.medico['id']}/reseñas/"),
-        headers: {'Authorization': 'Bearer $token'},
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization':
+              'Token $token', // Añadir el encabezado de autorización
+        },
       );
 
       if (response.statusCode == 200) {
