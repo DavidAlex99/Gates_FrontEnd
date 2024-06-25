@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import './pago_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CitasTab extends StatefulWidget {
@@ -15,9 +16,8 @@ class CitasTab extends StatefulWidget {
 class _CitasTabState extends State<CitasTab>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<dynamic> citasDisponibles = [];
-  List<dynamic> citasReservadas = [];
-  bool isLoading = false;
+  List citasDisponibles = [];
+  List citasReservadas = [];
 
   @override
   void initState() {
@@ -26,62 +26,106 @@ class _CitasTabState extends State<CitasTab>
     fetchCitas();
   }
 
-  fetchCitas() async {
-    await fetchCitasDisponibles();
-    await fetchCitasReservadas();
+  Future<void> fetchCitas() async {
+    fetchCitasDisponibles();
+    fetchCitasReservadas();
   }
 
   Future<void> fetchCitasDisponibles() async {
-    setState(() {
-      isLoading = true;
-    });
-    final prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('auth_token');
-    print('tokenj en fectchcitas');
-    print(token);
-    var url =
-        'http://192.168.100.6:8001/gatesApp/medicos/${widget.medico['id']}/citas/';
-    var response = await http
-        .get(Uri.parse(url), headers: {'Authorization': 'Token $token'});
-    if (response.statusCode == 200) {
-      setState(() {
-        citasDisponibles = json.decode(response.body);
-      });
-    } else {
-      print('Failed to load citas disponibles');
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token =
+          prefs.getString('token'); // Obtener el token de SharedPreferences
+      print('token en _fetchResenas:');
+      print(token);
+
+      if (token == null) {
+        throw Exception('Authentication token is not available.');
+      }
+
+      final response = await http.get(
+        Uri.parse(
+            'http://192.168.100.6:8001/gatesApp/medicos/${widget.medico['id']}/citas/'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Token $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          citasDisponibles = json.decode(response.body);
+        });
+      } else {
+        throw Exception('Failed to load citas');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar las reseñas: ${e.toString()}')),
+      );
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   Future<void> fetchCitasReservadas() async {
-    setState(() {
-      isLoading = true;
-    });
-    final prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('auth_token');
-    var url =
-        'http://192.168.100.6:8001/gatesApp/medicos/${widget.medico['id']}/citas/reservadas';
-    var response = await http
-        .get(Uri.parse(url), headers: {'Authorization': 'Token $token'});
-    if (response.statusCode == 200) {
-      setState(() {
-        citasReservadas = json.decode(response.body);
-      });
-    } else {
-      print('Failed to load citas reservadas');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print("prefs contenido");
+    print(prefs.getInt('userId'));
+    int? userId = prefs.getInt(
+        'userId'); // Asegúrate de que este valor se guarda cuando el usuario se loguea
+
+    if (userId == null) {
+      print('userId ID is not available');
+      return;
     }
-    setState(() {
-      isLoading = false;
-    });
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token =
+          prefs.getString('token'); // Obtener el token de SharedPreferences
+      print("token en fetchCitasReservadas");
+      print(token);
+      int? userId = prefs.getInt(
+          'userId'); // Asegúrate de que este valor se guarda cuando el usuario se loguea
+
+      if (userId == null) {
+        print('userId ID is not available');
+        return;
+      }
+      if (token == null) {
+        throw Exception('Authentication token is not available.');
+      }
+
+      // Asegúrate de que la URL esté correctamente configurada para obtener solo las citas reservadas
+      final response = await http.get(
+        Uri.parse(
+            'http://192.168.100.6:8001/gatesApp/medicos/${widget.medico['id']}/citas/$userId/reservadas/'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Token $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          citasReservadas = json.decode(
+              response.body); // Asume que el backend devuelve un array JSON
+        });
+      } else {
+        throw Exception('Failed to load reserved citas');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Error al cargar citas reservadas: ${e.toString()}')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Citas de ${widget.medico['nombre']}'),
+        title: Text("Citas"),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
@@ -93,71 +137,36 @@ class _CitasTabState extends State<CitasTab>
       body: TabBarView(
         controller: _tabController,
         children: [
-          buildCitasList(citasDisponibles, false),
-          buildCitasList(citasReservadas, true),
+          buildCitasList(
+              citasDisponibles), // Usa un método para construir la lista
+          buildCitasList(citasReservadas),
         ],
       ),
     );
   }
 
-  Widget buildCitasList(List<dynamic> citas, bool isReservadas) {
-    return ListView.builder(
-      itemCount: citas.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text('Fecha: ${citas[index]['fecha_hora_inicio']}'),
-          subtitle: Text('Estado: ${citas[index]['estado']}'),
-          trailing: isReservadas
-              ? IconButton(
-                  icon: Icon(Icons.cancel),
-                  onPressed: () => cancelarCita(citas[index]['id']),
-                )
-              : IconButton(
-                  icon: Icon(Icons.book_online),
-                  onPressed: () => reservarCita(citas[index]['id']),
-                ),
-        );
-      },
+  Widget buildCitasList(List citas) {
+    return RefreshIndicator(
+      onRefresh: fetchCitas,
+      child: ListView.builder(
+        itemCount: citas.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(
+                '${citas[index]['fecha_hora_inicio']} - ${citas[index]['fecha_hora_fin']}'),
+            subtitle: Text('Precio: ${citas[index]['precio']} USD'),
+            onTap: () {
+              double precio = double.parse(citas[index]['precio'].toString());
+              Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PaymentScreen(
+                              precio: precio, citaId: citas[index]['id'])))
+                  .then((_) => fetchCitas()); // Recargar citas al regresar
+            },
+          );
+        },
+      ),
     );
-  }
-
-  void reservarCita(int citaId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('auth_token');
-    var url =
-        'http://192.168.100.6:8001/gatesApp/medicos/${widget.medico['id']}/citas/reservar/$citaId/';
-    var response = await http
-        .post(Uri.parse(url), headers: {'Authorization': 'Token $token'});
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Cita reservada con éxito')));
-      fetchCitas();
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error al reservar cita')));
-    }
-  }
-
-  void cancelarCita(int citaId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('auth_token');
-    var url =
-        'http://192.168.100.6:8001/gatesApp/medicos/${widget.medico['id']}/citas/cancelar/$citaId/';
-    var response = await http
-        .post(Uri.parse(url), headers: {'Authorization': 'Token $token'});
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Cita cancelada con éxito')));
-      fetchCitas();
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error al cancelar cita')));
-    }
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 }

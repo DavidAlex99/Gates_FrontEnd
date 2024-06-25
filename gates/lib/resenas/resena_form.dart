@@ -41,7 +41,7 @@ class _ResenaFormPageState extends State<ResenaFormPage> {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final String? token = prefs.getString('auth_token');
+      final String? token = prefs.getString('token');
       if (token == null) {
         throw Exception('Authentication token is not available.');
       }

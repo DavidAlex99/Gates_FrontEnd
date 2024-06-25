@@ -26,13 +26,25 @@ class AuthService {
     );
 
     if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      String token = responseData['token'];
-      print('token en login:');
-      print(token);
-      await _saveToken(token); // Guardar el token
-      return token;
+      try {
+        final responseData = jsonDecode(response.body);
+        final userId = responseData['user_id'] as int; // Asegurarse que es int
+        String token = responseData['token'];
+        print('token en login:');
+        print(token);
+        print('userId en login:');
+        print(userId);
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('userId', userId);
+        await prefs.setString('token', token);
+        return token;
+      } catch (e) {
+        print('Error parsing data from the login response: $e');
+        return null;
+      }
     } else {
+      print('Failed to log in: ${response.body}');
       return null;
     }
   }
@@ -56,12 +68,18 @@ class AuthService {
 
     if (response.statusCode == 201) {
       final responseData = jsonDecode(response.body);
+      final userId =
+          responseData['user_id'] as int; // Asegúrate que es un entero
       String token = responseData['token'];
-      print('token en register:');
+      print('Token en register:');
       print(token);
-      await _saveToken(token); // Guardar el token
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('userId', userId);
+      await prefs.setString('token', token);
       return token;
     } else {
+      print('Failed to register: ${response.body}');
       return null;
     }
   }
