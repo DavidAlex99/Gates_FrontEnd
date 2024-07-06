@@ -50,7 +50,7 @@ class AuthService {
   }
 
   Future<String?> register(String username, String email, String first_name,
-      String last_name, String password, String telefono) async {
+      String last_name, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/registerPaciente/'),
       headers: <String, String>{
@@ -62,7 +62,6 @@ class AuthService {
         'first_name': first_name,
         'last_name': last_name,
         'password': password,
-        'telefono': telefono,
       }),
     );
 

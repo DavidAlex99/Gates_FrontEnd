@@ -14,8 +14,6 @@ class _SignupPageState extends State<SignupPage> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _telefonoController =
-      TextEditingController(); // Campo adicional para el teléfono
 
   void _register() async {
     String username = _usernameController.text;
@@ -23,10 +21,9 @@ class _SignupPageState extends State<SignupPage> {
     String firstName = _firstNameController.text;
     String lastName = _lastNameController.text;
     String password = _passwordController.text;
-    String telefono =
-        _telefonoController.text; // Recolectar el valor del teléfono
+
     String? userId = await AuthService()
-        .register(username, email, firstName, lastName, password, telefono);
+        .register(username, email, firstName, lastName, password);
     if (userId != null) {
       // pasar el userId del usuario actual
       Navigator.pushReplacement(
@@ -84,10 +81,6 @@ class _SignupPageState extends State<SignupPage> {
             TextField(
               controller: _lastNameController,
               decoration: InputDecoration(labelText: 'Apellido'),
-            ),
-            TextField(
-              controller: _telefonoController,
-              decoration: InputDecoration(labelText: 'Telefono'),
             ),
             ElevatedButton(
               onPressed: _register,
