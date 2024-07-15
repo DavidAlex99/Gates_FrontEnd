@@ -1,9 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../login/auth_service.dart';
-import '../login/login_page.dart';
 
 class DetalleServicioPage extends StatelessWidget {
   final Map servicio;
@@ -12,7 +7,7 @@ class DetalleServicioPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Aquí podrías agregar más campos si están disponibles en el mapa de comida
+    print(servicio['imagen']);
     return Scaffold(
       appBar: AppBar(
         title: Text(servicio['nombre']),
@@ -32,7 +27,7 @@ class DetalleServicioPage extends StatelessWidget {
               padding: EdgeInsets.all(16.0),
               child: Text(
                 servicio['descripcion'],
-                style: Theme.of(context).textTheme.headline6,
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
             // Puedes añadir más Widgets aquí para mostrar toda la información que quieras

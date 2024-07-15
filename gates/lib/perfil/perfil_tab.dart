@@ -42,7 +42,7 @@ class PerfilTab extends StatelessWidget {
             if (imagenesPerfil.isEmpty)
               Text(
                 'No hay imágenes disponibles en la galería.',
-                style: Theme.of(context).textTheme.bodyText2,
+                style: Theme.of(context).textTheme.headlineLarge,
               )
             else
               ...imagenesPerfil.map((imagen) {

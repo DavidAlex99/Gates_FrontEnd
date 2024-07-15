@@ -135,7 +135,7 @@ class _ContactoFarmaciaTabState extends State<ContactoFarmaciaTab> {
             padding: EdgeInsets.all(8.0),
             child: Text(
               'Imágenes de contacto',
-              style: Theme.of(context).textTheme.headline6,
+              style: Theme.of(context).textTheme.headlineLarge,
             ),
           ),
           if (contactoFarmacia['imagenesContacto'] != null &&

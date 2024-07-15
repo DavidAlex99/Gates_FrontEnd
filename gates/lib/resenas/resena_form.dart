@@ -48,7 +48,7 @@ class _ResenaFormPageState extends State<ResenaFormPage> {
 
       final response = await http.post(
         Uri.parse(
-            "http://192.168.100.6:8001/gatesApp/medicos/${widget.medicoId}/reseña/"),
+            "http://192.168.100.6:8001/medicos/${widget.medicoId}/reseña/"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Token $token',

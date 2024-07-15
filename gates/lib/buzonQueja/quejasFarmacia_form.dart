@@ -47,7 +47,7 @@ class _QuejaFarmaciaFormPageState extends State<QuejaFarmaciaFormPage> {
 
       final response = await http.post(
         Uri.parse(
-            "http://192.168.100.6:8001/gatesApp/farmacias/${widget.farmaciaId}/crear_queja/"),
+            "http://192.168.100.6:8001/farmacias/${widget.farmaciaId}/crear_queja/"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Token $token',
@@ -62,8 +62,7 @@ class _QuejaFarmaciaFormPageState extends State<QuejaFarmaciaFormPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Queja enviada con éxito')),
         );
-        Navigator.pop(
-            context); // Regresa a la página anterior tras enviar la queja
+        Navigator.pop(context);
       } else {
         throw Exception(
             'Failed to send complaint. Status code: ${response.statusCode}');

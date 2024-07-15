@@ -135,7 +135,7 @@ class _ContactoTabState extends State<ContactoTab> {
             padding: EdgeInsets.all(8.0),
             child: Text(
               'Imágenes de contacto',
-              style: Theme.of(context).textTheme.headline6,
+              style: Theme.of(context).textTheme.headlineLarge,
             ),
           ),
           if (contacto['imagenesContacto'] != null &&

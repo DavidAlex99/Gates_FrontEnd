@@ -3,14 +3,13 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final String baseUrl =
-      'http://192.168.100.6:8001/gatesApp'; // Reemplaza esto por la URL real de tu backen
+  final String baseUrl = 'http://192.168.100.6:8001';
 
   // Método para guardar el token
   Future<void> _saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
-    print('Token saved: $token'); // Imprime el token para verificar
+    print('Token saved: $token');
   }
 
   Future<String?> login(String username, String password) async {
@@ -28,7 +27,7 @@ class AuthService {
     if (response.statusCode == 200) {
       try {
         final responseData = jsonDecode(response.body);
-        final userId = responseData['user_id'] as int; // Asegurarse que es int
+        final userId = responseData['user_id'] as int;
         String token = responseData['token'];
         print('token en login:');
         print(token);
@@ -67,8 +66,7 @@ class AuthService {
 
     if (response.statusCode == 201) {
       final responseData = jsonDecode(response.body);
-      final userId =
-          responseData['user_id'] as int; // Asegúrate que es un entero
+      final userId = responseData['user_id'] as int;
       String token = responseData['token'];
       print('Token en register:');
       print(token);
@@ -94,6 +92,25 @@ class AuthService {
           'Authorization': 'Token $token',
         },
       );
+
+      if (response.statusCode == 200) {
+        try {
+          final responseData = jsonDecode(response.body);
+          final userId =
+              responseData['user_id'] as int; // Asegurarse que es int
+          String token = responseData['token'];
+          print('token en login:');
+          print(token);
+          print('userId en login:');
+          print(userId);
+        } catch (e) {
+          print('Error parsing data from the login response: $e');
+          return null;
+        }
+      } else {
+        print('Failed to log out in: ${response.body}');
+        return null;
+      }
       // Verificar la respuesta aquí si es necesario
     }
     // Eliminar el token del almacenamiento local independientemente de la respuesta del servidor

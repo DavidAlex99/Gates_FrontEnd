@@ -29,8 +29,7 @@ class _ResenasTabState extends State<ResenasTab> {
     });
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token =
-          prefs.getString('token'); // Obtener el token de SharedPreferences
+      String? token = prefs.getString('token');
       print('token en _fetchResenas:');
       print(token);
 
@@ -40,11 +39,10 @@ class _ResenasTabState extends State<ResenasTab> {
 
       final response = await http.get(
         Uri.parse(
-            "http://192.168.100.6:8001/gatesApp/medicos/${widget.medico['id']}/reseñas/"),
+            "http://192.168.100.6:8001/medicos/${widget.medico['id']}/reseñas/"),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization':
-              'Token $token', // Añadir el encabezado de autorización
+          'Authorization': 'Token $token',
         },
       );
 
@@ -113,7 +111,6 @@ class _ResenasTabState extends State<ResenasTab> {
       MaterialPageRoute(
         builder: (context) => ResenaFormPage(medicoId: widget.medico['id']),
       ),
-    ).then((_) =>
-        _fetchResenas()); // Refrescar las reseñas después de regresar del formulario
+    ).then((_) => _fetchResenas());
   }
 }

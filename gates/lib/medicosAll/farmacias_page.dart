@@ -15,7 +15,7 @@ Future<Map> fetchFarmaciaDetails(int farmaciaId) async {
   print('token en fetchFarmaciaDetails:');
   print(token);
 
-  final String url = 'http://192.168.100.6:8001/gatesApp/farmacias/$farmaciaId';
+  final String url = 'http://192.168.100.6:8001/farmacias/$farmaciaId';
   final response = await http.get(
     Uri.parse(url),
     headers: {
@@ -61,7 +61,7 @@ class _FarmaciasPageState extends State<FarmaciasPage> {
         loading = true;
       });
 
-      final url = 'http://192.168.100.6:8001/gatesApp/farmacias';
+      final url = 'http://192.168.100.6:8001/farmacias';
 
       final response = await http.get(
         Uri.parse(url),
@@ -126,8 +126,7 @@ class _FarmaciasPageState extends State<FarmaciasPage> {
         print('token en fetchFarmaciasCercanos');
         print(token);
 
-        final uri = Uri.http(
-            '192.168.100.6:8001', '/gatesApp/farmacias/cercanos', {
+        final uri = Uri.http('192.168.100.6:8001', '/farmacias/cercanos', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString()
         });

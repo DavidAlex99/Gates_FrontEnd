@@ -48,7 +48,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
           },
         ),
       );
-
     _loadCreatePaymentUrl();
   }
 
@@ -66,7 +65,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     final response = await http.get(
       Uri.parse(
-        'http://192.168.100.6:8001/gatesApp/create_payment/${widget.precio.toStringAsFixed(2)}/${widget.citaId}/$userId',
+        'http://192.168.100.6:8001/create_payment/${widget.precio.toStringAsFixed(2)}/${widget.citaId}/$userId',
       ),
     );
 

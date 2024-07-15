@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './quejasFarmacia_form.dart'; // Asegúrate de que este import refleja la ubicación correcta de tu archivo del formulario de quejas.
+import './quejasFarmacia_form.dart';
 
 class QuejasFarmaciaTab extends StatefulWidget {
   final Map farmacia;

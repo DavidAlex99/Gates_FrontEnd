@@ -11,7 +11,7 @@ Future<Map> fetchFarmaciaDetails(int farmaciaId) async {
   final String? token = prefs.getString('token');
   print("Token is: $token"); // Esto mostrará el token en la consola.
 
-  final String url = 'http://192.168.100.6:8001/gatesApp/farmacias/$farmaciaId';
+  final String url = 'http://192.168.100.6:8001/farmacias/$farmaciaId';
   final response = await http.get(
     Uri.parse(url),
     headers: token != null ? {'Authorization': 'Token $token'} : {},
@@ -55,7 +55,7 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
       print('token en fetchMedicamentosInicial:');
       print(token);
 
-      final url = 'http://192.168.100.6:8001/gatesApp/medicamentos';
+      final url = 'http://192.168.100.6:8001/medicamentos';
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -103,8 +103,8 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
         };
-        var uri = Uri.http('192.168.100.6:8001',
-            '/gatesApp/medicamentos/cercanos', queryParams);
+        var uri = Uri.http(
+            '192.168.100.6:8001', '/medicamentos/cercanos', queryParams);
 
         final response = await http.get(uri, headers: {
           'Authorization': 'Token $token',

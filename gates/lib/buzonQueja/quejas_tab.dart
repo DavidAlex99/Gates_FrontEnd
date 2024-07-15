@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './quejas_form.dart'; // Asegúrate de que este import refleja la ubicación correcta de tu archivo del formulario de quejas.
+import './quejas_form.dart';
 
 class QuejasTab extends StatefulWidget {
   final Map medico;
@@ -11,6 +11,15 @@ class QuejasTab extends StatefulWidget {
 }
 
 class _QuejasTabState extends State<QuejasTab> {
+  void _navigateToQuejaForm() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QuejaFormPage(medicoId: widget.medico['id']),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,15 +36,6 @@ class _QuejasTabState extends State<QuejasTab> {
         onPressed: _navigateToQuejaForm,
         child: Icon(Icons.add),
         tooltip: 'Reportar Nuevo Problema',
-      ),
-    );
-  }
-
-  void _navigateToQuejaForm() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => QuejaFormPage(medicoId: widget.medico['id']),
       ),
     );
   }

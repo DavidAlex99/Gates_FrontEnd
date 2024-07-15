@@ -1,9 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../login/auth_service.dart';
-import '../login/login_page.dart';
 
 class DetalleMedicamentoPage extends StatelessWidget {
   final Map medicamento;
@@ -33,7 +28,7 @@ class DetalleMedicamentoPage extends StatelessWidget {
               padding: EdgeInsets.all(16.0),
               child: Text(
                 medicamento['descripcion'],
-                style: Theme.of(context).textTheme.headline6,
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
             // Puedes añadir más Widgets aquí para mostrar toda la información que quieras

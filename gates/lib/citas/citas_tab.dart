@@ -45,7 +45,7 @@ class _CitasTabState extends State<CitasTab>
 
       final response = await http.get(
         Uri.parse(
-            'http://192.168.100.6:8001/gatesApp/medicos/${widget.medico['id']}/citas/'),
+            'http://192.168.100.6:8001/medicos/${widget.medico['id']}/citas/'),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Token $token',
@@ -95,10 +95,9 @@ class _CitasTabState extends State<CitasTab>
         throw Exception('Authentication token is not available.');
       }
 
-      // Asegúrate de que la URL esté correctamente configurada para obtener solo las citas reservadas
       final response = await http.get(
         Uri.parse(
-            'http://192.168.100.6:8001/gatesApp/medicos/${widget.medico['id']}/citas/$userId/reservadas/'),
+            'http://192.168.100.6:8001/medicos/${widget.medico['id']}/citas/$userId/reservadas/'),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Token $token',
