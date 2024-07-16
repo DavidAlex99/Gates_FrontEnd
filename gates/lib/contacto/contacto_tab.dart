@@ -3,6 +3,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:math';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ContactoTab extends StatefulWidget {
   final Map medico;
@@ -14,6 +17,7 @@ class ContactoTab extends StatefulWidget {
 }
 
 class _ContactoTabState extends State<ContactoTab> {
+  late Map contacto;
   late GoogleMapController mapController;
   // para arcar la ubicacion del cliente
   Set<Marker> markers = {};
@@ -21,6 +25,7 @@ class _ContactoTabState extends State<ContactoTab> {
   @override
   void initState() {
     super.initState();
+    contacto = widget.medico['contacto'] ?? {};
     // Inicializar el marcador del emprendimiento desde el inicio.
     final latitud = double.tryParse('${widget.medico['contacto']?['latitud']}');
     final longitud =
@@ -89,74 +94,114 @@ class _ContactoTabState extends State<ContactoTab> {
   }
   // fin obtener permiso ubicacion del cliente
 
+  Future<void> _refreshContactInfo() async {
+    try {
+      final updatedMedico = await fetchMedicoDetails(widget.medico['id']);
+      setState(() {
+        contacto = updatedMedico['contacto'] ?? {};
+        markers.clear();
+        final latitud = double.tryParse('${contacto['latitud']}');
+        final longitud = double.tryParse('${contacto['longitud']}');
+        if (latitud != null && longitud != null) {
+          markers.add(Marker(
+            markerId: MarkerId("medicoLocation"),
+            position: LatLng(latitud, longitud),
+          ));
+        }
+      });
+    } catch (e) {
+      print('Error refreshing contact info: $e');
+    }
+  }
+
+  Future<Map> fetchMedicoDetails(int medicoId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load medico details');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final contacto = widget.medico['contacto'] ?? {};
     final lat = contacto['latitud'];
     final lng = contacto['longitud'];
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (lat != null && lng != null)
-            Container(
-              height: 250,
-              child: GoogleMap(
-                onMapCreated: _onMapCreated,
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(lat, lng),
-                  zoom: 16.0,
-                ),
-                markers: markers,
-              ),
-            ),
-          ElevatedButton(
-            onPressed: _getUserLocation,
-            child: Text('Mostrar mi ubicación'),
-          ),
-          ListTile(
-            leading: Icon(Icons.location_on),
-            title: Text('Dirección'),
-            subtitle: Text(contacto['direccion'] ?? 'No disponible'),
-          ),
-          ListTile(
-            leading: Icon(Icons.phone),
-            title: Text('Teléfono'),
-            subtitle: Text(contacto['telefono'] ?? 'No disponible'),
-          ),
-          ListTile(
-            leading: Icon(Icons.email),
-            title: Text('Correo Electrónico'),
-            subtitle: Text(contacto['correo'] ?? 'No disponible'),
-          ),
-          // Imágenes de contacto si existen
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              'Imágenes de contacto',
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-          ),
-          if (contacto['imagenesContacto'] != null &&
-              (contacto['imagenesContacto'] as List).isNotEmpty)
-            ...contacto['imagenesContacto']
-                .map((img) => Image.network(
-                      'http://192.168.100.6:8001${img['imagen']}',
-                      fit: BoxFit.cover,
-                    ))
-                .toList()
-          else
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'No hay imágenes de contacto disponibles.',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    return RefreshIndicator(
+      onRefresh: _refreshContactInfo,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (lat != null && lng != null)
+              Container(
+                height: 250,
+                child: GoogleMap(
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(lat, lng),
+                    zoom: 16.0,
+                  ),
+                  markers: markers,
                 ),
               ),
+            ElevatedButton(
+              onPressed: _getUserLocation,
+              child: Text('Mostrar mi ubicación'),
             ),
-        ],
+            ListTile(
+              leading: Icon(Icons.location_on),
+              title: Text('Dirección'),
+              subtitle: Text(contacto['direccion'] ?? 'No disponible'),
+            ),
+            ListTile(
+              leading: Icon(Icons.phone),
+              title: Text('Teléfono'),
+              subtitle: Text(contacto['telefono'] ?? 'No disponible'),
+            ),
+            ListTile(
+              leading: Icon(Icons.email),
+              title: Text('Correo Electrónico'),
+              subtitle: Text(contacto['correo'] ?? 'No disponible'),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Imágenes de contacto',
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+            ),
+            if (contacto['imagenesContacto'] != null &&
+                (contacto['imagenesContacto'] as List).isNotEmpty)
+              ...contacto['imagenesContacto']
+                  .map((img) => Image.network(
+                        'http://127.0.0.1:8000${img['imagen']}',
+                        fit: BoxFit.cover,
+                      ))
+                  .toList()
+            else
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'No hay imágenes de contacto disponibles.',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

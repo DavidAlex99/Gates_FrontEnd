@@ -65,7 +65,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     final response = await http.get(
       Uri.parse(
-        'http://192.168.100.6:8001/create_payment/${widget.precio.toStringAsFixed(2)}/${widget.citaId}/$userId',
+        //'http://192.168.100.6:8001/create_payment/${widget.precio.toStringAsFixed(2)}/${widget.citaId}/$userId',
+        'http://127.0.0.1:8000/create_payment/${widget.precio.toStringAsFixed(2)}/${widget.citaId}/$userId',
       ),
     );
 

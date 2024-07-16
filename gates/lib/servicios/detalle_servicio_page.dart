@@ -17,7 +17,8 @@ class DetalleServicioPage extends StatelessWidget {
           children: <Widget>[
             servicio['imagen'] != null
                 ? Image.network(
-                    'http://192.168.100.6:8001${servicio['imagen']}',
+                    //'http://192.168.100.6:8001${servicio['imagen']}',
+                    'http://127.0.0.1:8000${servicio['imagen']}',
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,

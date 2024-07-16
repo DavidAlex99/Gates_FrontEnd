@@ -7,6 +7,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import './servicios_page.dart';
 import './farmacias_page.dart';
+import '../login/login_page.dart';
+import '../login/auth_service.dart';
 
 Future<Map> fetchMedicoDetails(int medicoId) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -15,7 +17,8 @@ Future<Map> fetchMedicoDetails(int medicoId) async {
   print('token en fetchMedicoDetails:');
   print(token);
 
-  final String url = 'http://192.168.100.6:8001/medicos/$medicoId';
+  //final String url = 'http://192.168.100.6:8001/medicos/$medicoId';
+  final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
   final response = await http.get(
     Uri.parse(url),
     headers: {
@@ -62,7 +65,8 @@ class _MedicosPageState extends State<MedicosPage> {
         loading = true;
       });
 
-      final url = 'http://192.168.100.6:8001/medicos' +
+      //final url = 'http://192.168.100.6:8001/medicos' +
+      final url = 'http://127.0.0.1:8000/medicos' +
           (selectedEspecialidad != 'Todos'
               ? '?categoria=$selectedEspecialidad'
               : '');
@@ -130,7 +134,8 @@ class _MedicosPageState extends State<MedicosPage> {
         print('token en fetchMedicosCercanos');
         print(token);
 
-        final uri = Uri.http('192.168.100.6:8001', '/medicos/cercanos', {
+        //final uri = Uri.http('192.168.100.6:8001', '/medicos/cercanos', {
+        final uri = Uri.http('127.0.0.1:8000', '/medicos/cercanos', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
           'especialidad':
@@ -179,145 +184,198 @@ class _MedicosPageState extends State<MedicosPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Medicos'),
-        actions: [
-          DropdownButton<String>(
-            value: selectedEspecialidad,
-            onChanged: (newValue) {
-              setState(() {
-                selectedEspecialidad = newValue!;
-                fetchMedicosInicial();
-              });
-            },
-            items: <String>[
-              'Todos',
-              'CARDIOLOGO',
-              'PEDIATRA',
-              'NEUROLOGO',
-            ].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-          IconButton(
-            icon: Icon(Icons.location_on),
-            onPressed: fetchMedicosCercanos,
-          ),
-          IconButton(
-            icon: Icon(Icons.restaurant_menu),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ServiciosPage()),
-              );
-            },
-          ),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Navegación',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
+  Future<void> _showLogoutDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Cerrar sesión'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('¿Estás seguro de que deseas cerrar sesión?'),
+              ],
             ),
-            ListTile(
-              leading: Icon(Icons.local_hospital),
-              title: Text('Médicos'),
-              onTap: () {
-                Navigator.pop(context); // Cierra el drawer
-                Navigator.pushReplacement(
-                  // Navega sin duplicar la misma vista
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MedicosPage(userId: widget.userId)),
-                );
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop();
               },
             ),
-            ListTile(
-              leading: Icon(Icons.store),
-              title: Text('Farmacias'),
-              onTap: () {
-                Navigator.pop(context); // Cierra el drawer
-                Navigator.pushReplacement(
-                  // Cambia a la página de farmacias
+            TextButton(
+              child: Text('Cerrar sesión'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo primero
+                _logout();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _logout() async {
+    await AuthService().logout();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        _showLogoutDialog();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Medicos'),
+          actions: [
+            DropdownButton<String>(
+              value: selectedEspecialidad,
+              onChanged: (newValue) {
+                setState(() {
+                  selectedEspecialidad = newValue!;
+                  fetchMedicosInicial();
+                });
+              },
+              items: <String>[
+                'Todos',
+                'CARDIOLOGO',
+                'PEDIATRA',
+                'NEUROLOGO',
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+            IconButton(
+              icon: Icon(Icons.location_on),
+              onPressed: fetchMedicosCercanos,
+            ),
+            IconButton(
+              icon: Icon(Icons.restaurant_menu),
+              onPressed: () {
+                Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          FarmaciasPage(userId: widget.userId)),
+                  MaterialPageRoute(builder: (context) => ServiciosPage()),
                 );
               },
             ),
           ],
         ),
-      ),
-      body: loading
-          ? Center(child: CircularProgressIndicator())
-          : medicos.isEmpty
-              ? Center(child: Text("No hay farmacias disponibles"))
-              : ListView.builder(
-                  itemCount: medicos.length,
-                  itemBuilder: (context, index) {
-                    final medico = medicos[index];
-                    final distanciaStr = medico['distancia'] != null
-                        ? "${medico['distancia'].toStringAsFixed(2)} km"
-                        : "Distance not available";
-                    return ListTile(
-                      leading: Image.network(
-                        medico['imagen'],
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
-                      title: Text(medico['nombre']),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                              'Dirección: ${(medico['contacto']?['direccion'] ?? 'No disponible')} y ${(medico['contacto']?['direccion_secundaria'] ?? 'No disponible')}'),
-                          Text('Distancia: $distanciaStr'),
-                        ],
-                      ),
-                      onTap: () async {
-                        print('Tap on ${medico['nombre']}');
-                        try {
-                          final medicoDetails =
-                              await fetchMedicoDetails(medico['id']);
-                          print('Nombre: ${medicoDetails['nombre']}');
-                          print(
-                              'Especialidad: ${medicoDetails['especialidad']}');
-                          print('Perfil: ${medicoDetails['perfil']}');
-                          print('Contacto: ${medicoDetails['contacto']}');
-                          print('Servicios: ${medicoDetails['servicios']}');
-                          print('Citas: ${medicoDetails['citas']}');
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    MedicoDetallesPage(medico: medicoDetails),
-                              ));
-                        } catch (e) {
-                          print('Error navigating to medico details: $e');
-                        }
-                      },
-                    );
-                  },
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
                 ),
+                child: Text(
+                  'Navegación',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.local_hospital),
+                title: Text('Médicos'),
+                onTap: () {
+                  Navigator.pop(context); // Cierra el drawer
+                  Navigator.pushReplacement(
+                    // Navega sin duplicar la misma vista
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            MedicosPage(userId: widget.userId)),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.store),
+                title: Text('Farmacias'),
+                onTap: () {
+                  Navigator.pop(context); // Cierra el drawer
+                  Navigator.pushReplacement(
+                    // Cambia a la página de farmacias
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            FarmaciasPage(userId: widget.userId)),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        body: loading
+            ? Center(child: CircularProgressIndicator())
+            : medicos.isEmpty
+                ? Center(child: Text("No hay médicos disponibles"))
+                : RefreshIndicator(
+                    onRefresh: fetchMedicosInicial,
+                    child: ListView.builder(
+                      itemCount: medicos.length,
+                      itemBuilder: (context, index) {
+                        final medico = medicos[index];
+                        final distanciaStr = medico['distancia'] != null
+                            ? "${medico['distancia'].toStringAsFixed(2)} km"
+                            : "Distancia no disponible";
+                        return ListTile(
+                          leading: Image.network(
+                            medico['imagen'],
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          ),
+                          title: Text(medico['nombre']),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  'Dirección: ${(medico['contacto']?['direccion'] ?? 'No disponible')} y ${(medico['contacto']?['direccion_secundaria'] ?? 'No disponible')}'),
+                              Text('Distancia: $distanciaStr'),
+                            ],
+                          ),
+                          onTap: () async {
+                            print('Tap on ${medico['nombre']}');
+                            try {
+                              final medicoDetails =
+                                  await fetchMedicoDetails(medico['id']);
+                              print('Nombre: ${medicoDetails['nombre']}');
+                              print(
+                                  'Especialidad: ${medicoDetails['especialidad']}');
+                              print('Perfil: ${medicoDetails['perfil']}');
+                              print('Contacto: ${medicoDetails['contacto']}');
+                              print('Servicios: ${medicoDetails['servicios']}');
+                              print('Citas: ${medicoDetails['citas']}');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      MedicoDetallesPage(medico: medicoDetails),
+                                ),
+                              );
+                            } catch (e) {
+                              print('Error navigating to medico details: $e');
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ),
+      ),
     );
   }
 }

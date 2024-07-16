@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../medicamentos/medicamentos_tab.dart';
 import '../contacto/contactoFarmacia_tab.dart';
 import '../buzonQueja/quejasFarmacia_tab.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FarmaciaDetallesPage extends StatefulWidget {
   final Map farmacia;
@@ -13,6 +16,44 @@ class FarmaciaDetallesPage extends StatefulWidget {
 }
 
 class _FarmaciaDetallesPageState extends State<FarmaciaDetallesPage> {
+  late Map farmacia;
+
+  @override
+  void initState() {
+    super.initState();
+    farmacia = widget.farmacia;
+  }
+
+  Future<void> _refreshFarmaciaDetails() async {
+    try {
+      final updatedFarmacia = await fetchFarmaciaDetails(farmacia['id']);
+      setState(() {
+        farmacia = updatedFarmacia;
+      });
+    } catch (e) {
+      print('Error refreshing farmacia details: $e');
+    }
+  }
+
+  Future<Map> fetchFarmaciaDetails(int farmaciaId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    final String url = 'http://127.0.0.1:8000/farmacias/$farmaciaId';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load farmacia details');
+    }
+  }
+
   void _openQuejasFarmaciaTab() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => QuejasFarmaciaTab(farmacia: widget.farmacia)));
@@ -40,8 +81,14 @@ class _FarmaciaDetallesPageState extends State<FarmaciaDetallesPage> {
         ),
         body: TabBarView(
           children: [
-            MedicamentosTab(farmacia: widget.farmacia),
-            ContactoFarmaciaTab(farmacia: widget.farmacia),
+            RefreshIndicator(
+              onRefresh: _refreshFarmaciaDetails,
+              child: MedicamentosTab(farmacia: farmacia),
+            ),
+            RefreshIndicator(
+              onRefresh: _refreshFarmaciaDetails,
+              child: ContactoFarmaciaTab(farmacia: farmacia),
+            ),
           ],
         ),
       ),

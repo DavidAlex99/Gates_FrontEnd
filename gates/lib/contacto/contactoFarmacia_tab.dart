@@ -142,7 +142,8 @@ class _ContactoFarmaciaTabState extends State<ContactoFarmaciaTab> {
               (contactoFarmacia['imagenesContacto'] as List).isNotEmpty)
             ...contactoFarmacia['imagenesContacto']
                 .map((img) => Image.network(
-                      'http://192.168.100.6:8001${img['imagen']}',
+                      //'http://192.168.100.6:8001${img['imagen']}',
+                      'http://127.0.0.1:8000${img['imagen']}',
                       fit: BoxFit.cover,
                     ))
                 .toList()

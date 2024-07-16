@@ -45,7 +45,8 @@ class _CitasTabState extends State<CitasTab>
 
       final response = await http.get(
         Uri.parse(
-            'http://192.168.100.6:8001/medicos/${widget.medico['id']}/citas/'),
+            //'http://192.168.100.6:8001/medicos/${widget.medico['id']}/citas/'),
+            'http://127.0.0.1:8000/medicos/${widget.medico['id']}/citas/'),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Token $token',
@@ -97,7 +98,8 @@ class _CitasTabState extends State<CitasTab>
 
       final response = await http.get(
         Uri.parse(
-            'http://192.168.100.6:8001/medicos/${widget.medico['id']}/citas/$userId/reservadas/'),
+            //'http://192.168.100.6:8001/medicos/${widget.medico['id']}/citas/$userId/reservadas/'),
+            'http://127.0.0.1:8000/medicos/${widget.medico['id']}/citas/$userId/reservadas/'),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Token $token',
@@ -157,11 +159,12 @@ class _CitasTabState extends State<CitasTab>
             onTap: () {
               double precio = double.parse(citas[index]['precio'].toString());
               Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PaymentScreen(
-                              precio: precio, citaId: citas[index]['id'])))
-                  .then((_) => fetchCitas()); // Recargar citas al regresar
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      PaymentScreen(precio: precio, citaId: citas[index]['id']),
+                ),
+              ).then((_) => fetchCitas()); // Recargar citas al regresar
             },
           );
         },

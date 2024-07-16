@@ -18,7 +18,8 @@ class DetalleMedicamentoPage extends StatelessWidget {
           children: <Widget>[
             medicamento['imagen'] != null
                 ? Image.network(
-                    'http://192.168.100.6:8001${medicamento['imagen']}',
+                    //'http://192.168.100.6:8001${medicamento['imagen']}',
+                    'http://127.0.0.1:8000${medicamento['imagen']}',
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,
