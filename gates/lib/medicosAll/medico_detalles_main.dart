@@ -5,6 +5,11 @@ import '../contacto/contacto_tab.dart'; // Asegúrate de crear este archivo.
 import '../citas/citas_tab.dart'; // Asegúrate de crear este archivo.
 import '../buzonQueja/quejas_tab.dart';
 import '../resenas/resenas_tab.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import '../login/auth_service.dart';
+import '../login/login_page.dart';
 
 class MedicoDetallesPage extends StatefulWidget {
   final Map medico;
@@ -16,6 +21,54 @@ class MedicoDetallesPage extends StatefulWidget {
 }
 
 class _MedicoDetallesPageState extends State<MedicoDetallesPage> {
+  late Map medico;
+
+  @override
+  void initState() {
+    super.initState();
+    medico = widget.medico;
+  }
+
+  Future<void> _refreshMedicoDetails() async {
+    try {
+      final updatedMedico = await fetchMedicoDetails(medico['id']);
+      setState(() {
+        medico = updatedMedico;
+      });
+    } catch (e) {
+      print('Error refreshing medico details: $e');
+    }
+  }
+
+  Future<Map> fetchMedicoDetails(int medicoId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    print('token en fetchMedicoDetails:');
+    print(token);
+
+    final String url = 'http://192.168.100.6:8001/medicos/$medicoId';
+    //final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Token $token', // Añadir el encabezado de autorización
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load medico details');
+    }
+  }
+
+  void _logout() async {
+    await AuthService().logout();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+
   void _openQuejasTab() {
     Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => QuejasTab(medico: widget.medico)));
@@ -33,6 +86,10 @@ class _MedicoDetallesPageState extends State<MedicoDetallesPage> {
               icon: Icon(Icons.report_problem),
               onPressed: _openQuejasTab,
             ),
+            IconButton(
+              icon: Icon(Icons.exit_to_app),
+              onPressed: _logout,
+            ),
           ],
           bottom: TabBar(
             tabs: [
@@ -46,12 +103,26 @@ class _MedicoDetallesPageState extends State<MedicoDetallesPage> {
         ),
         body: TabBarView(
           children: [
-            PerfilTab(medico: widget.medico),
-            ServiciosTab(medico: widget.medico),
-            ContactoTab(medico: widget.medico),
-            CitasTab(medico: widget.medico),
-            ResenasTab(medico: widget.medico),
-            //ServiciosTab(medico: widget.medico),
+            RefreshIndicator(
+              onRefresh: _refreshMedicoDetails,
+              child: PerfilTab(medico: medico),
+            ),
+            RefreshIndicator(
+              onRefresh: _refreshMedicoDetails,
+              child: ServiciosTab(medico: medico),
+            ),
+            RefreshIndicator(
+              onRefresh: _refreshMedicoDetails,
+              child: ContactoTab(medico: medico),
+            ),
+            RefreshIndicator(
+              onRefresh: _refreshMedicoDetails,
+              child: CitasTab(medico: medico),
+            ),
+            RefreshIndicator(
+              onRefresh: _refreshMedicoDetails,
+              child: ResenasTab(medico: medico),
+            ),
           ],
         ),
       ),

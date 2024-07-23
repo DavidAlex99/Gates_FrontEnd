@@ -70,8 +70,10 @@ class _ContactoFarmaciaTabState extends State<ContactoFarmaciaTab> {
 
     // Ubicación del emprendimiento.
     final LatLng farmaciaLocation = LatLng(
-        double.tryParse('${widget.farmacia['contacto']['latitud']}') ?? 0,
-        double.tryParse('${widget.farmacia['contacto']['longitud']}') ?? 0);
+        double.tryParse('${widget.farmacia['contactoFarmacia']['latitud']}') ??
+            0,
+        double.tryParse('${widget.farmacia['contactoFarmacia']['longitud']}') ??
+            0);
 
     // Crear LatLngBounds
     final LatLngBounds bounds = LatLngBounds(
@@ -138,12 +140,12 @@ class _ContactoFarmaciaTabState extends State<ContactoFarmaciaTab> {
               style: Theme.of(context).textTheme.headlineLarge,
             ),
           ),
-          if (contactoFarmacia['imagenesContacto'] != null &&
-              (contactoFarmacia['imagenesContacto'] as List).isNotEmpty)
-            ...contactoFarmacia['imagenesContacto']
+          if (contactoFarmacia['imagenesContactoFarmacia'] != null &&
+              (contactoFarmacia['imagenesContactoFarmacia'] as List).isNotEmpty)
+            ...contactoFarmacia['imagenesContactoFarmacia']
                 .map((img) => Image.network(
-                      //'http://192.168.100.6:8001${img['imagen']}',
-                      'http://127.0.0.1:8000${img['imagen']}',
+                      'http://192.168.100.6:8001${img['imagen']}',
+                      //'http://127.0.0.1:8000${img['imagen']}',
                       fit: BoxFit.cover,
                     ))
                 .toList()

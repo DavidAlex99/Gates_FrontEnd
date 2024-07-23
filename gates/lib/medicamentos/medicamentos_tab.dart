@@ -37,7 +37,8 @@ class _MedicamentosTabState extends State<MedicamentosTab> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    final String url = 'http://127.0.0.1:8000/farmacias/$farmaciaId';
+    //final String url = 'http://127.0.0.1:8000/farmacias/$farmaciaId';
+    final String url = 'http://192.168.100.6:8001/farmacias/$farmaciaId';
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -66,7 +67,7 @@ class _MedicamentosTabState extends State<MedicamentosTab> {
               subtitle: Text(medicamento['descripcion']),
               leading: medicamento['imagen'] != null
                   ? Image.network(
-                      'http://127.0.0.1:8000${medicamento['imagen']}',
+                      'http://192.168.100.6:8001${medicamento['imagen']}',
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,

@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  //final String baseUrl = 'http://192.168.100.6:8001';
-  final String baseUrl = 'http://127.0.0.1:8000';
+  final String baseUrl = 'http://192.168.100.6:8001';
+  //final String baseUrl = 'http://127.0.0.1:8000';
   // Método para guardar el token
   Future<void> _saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();

@@ -39,7 +39,8 @@ class _PerfilTabState extends State<PerfilTab> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
+    //final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
+    final String url = 'http://192.168.100.6:8001/medicos/$medicoId';
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -98,7 +99,8 @@ class _PerfilTabState extends State<PerfilTab> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Image.network(
-                      'http://127.0.0.1:8000${imagen['imagen']}',
+                      //'http://127.0.0.1:8000${imagen['imagen']}',
+                      'http://192.168.100.6:8001${imagen['imagen']}',
                       fit: BoxFit.cover,
                     ),
                   );

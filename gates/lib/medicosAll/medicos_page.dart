@@ -17,8 +17,8 @@ Future<Map> fetchMedicoDetails(int medicoId) async {
   print('token en fetchMedicoDetails:');
   print(token);
 
-  //final String url = 'http://192.168.100.6:8001/medicos/$medicoId';
-  final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
+  final String url = 'http://192.168.100.6:8001/medicos/$medicoId';
+  //final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
   final response = await http.get(
     Uri.parse(url),
     headers: {
@@ -65,8 +65,8 @@ class _MedicosPageState extends State<MedicosPage> {
         loading = true;
       });
 
-      //final url = 'http://192.168.100.6:8001/medicos' +
-      final url = 'http://127.0.0.1:8000/medicos' +
+      final url = 'http://192.168.100.6:8001/medicos' +
+          //final url = 'http://127.0.0.1:8000/medicos' +
           (selectedEspecialidad != 'Todos'
               ? '?categoria=$selectedEspecialidad'
               : '');
@@ -134,8 +134,8 @@ class _MedicosPageState extends State<MedicosPage> {
         print('token en fetchMedicosCercanos');
         print(token);
 
-        //final uri = Uri.http('192.168.100.6:8001', '/medicos/cercanos', {
-        final uri = Uri.http('127.0.0.1:8000', '/medicos/cercanos', {
+        final uri = Uri.http('192.168.100.6:8001', '/medicos/cercanos', {
+          //final uri = Uri.http('127.0.0.1:8000', '/medicos/cercanos', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString(),
           'especialidad':

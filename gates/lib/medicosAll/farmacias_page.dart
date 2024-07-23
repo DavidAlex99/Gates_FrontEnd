@@ -15,8 +15,8 @@ Future<Map> fetchFarmaciaDetails(int farmaciaId) async {
   print('token en fetchFarmaciaDetails:');
   print(token);
 
-  //final String url = 'http://192.168.100.6:8001/farmacias/$farmaciaId';
-  final String url = 'http://127.0.0.1:8000/farmacias/$farmaciaId';
+  final String url = 'http://192.168.100.6:8001/farmacias/$farmaciaId';
+  //final String url = 'http://127.0.0.1:8000/farmacias/$farmaciaId';
   final response = await http.get(
     Uri.parse(url),
     headers: {
@@ -62,8 +62,8 @@ class _FarmaciasPageState extends State<FarmaciasPage> {
         loading = true;
       });
 
-      //final url = 'http://192.168.100.6:8001/farmacias';
-      final url = 'http://127.0.0.1:8000/farmacias';
+      final url = 'http://192.168.100.6:8001/farmacias';
+      //final url = 'http://127.0.0.1:8000/farmacias';
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -127,8 +127,8 @@ class _FarmaciasPageState extends State<FarmaciasPage> {
         print('token en fetchFarmaciasCercanos');
         print(token);
 
-        //final uri = Uri.http('192.168.100.6:8001', '/farmacias/cercanos', {
-        final uri = Uri.http('127.0.0.1:8000', '/farmacias/cercanos', {
+        final uri = Uri.http('192.168.100.6:8001', '/farmacias/cercanos', {
+          //final uri = Uri.http('127.0.0.1:8000', '/farmacias/cercanos', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString()
         });

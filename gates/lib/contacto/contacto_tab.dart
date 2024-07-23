@@ -27,9 +27,10 @@ class _ContactoTabState extends State<ContactoTab> {
     super.initState();
     contacto = widget.medico['contacto'] ?? {};
     // Inicializar el marcador del emprendimiento desde el inicio.
-    final latitud = double.tryParse('${widget.medico['contacto']?['latitud']}');
+    final latitud =
+        double.tryParse('${widget.medico['contactoMedico']?['latitud']}');
     final longitud =
-        double.tryParse('${widget.medico['contacto']?['longitud']}');
+        double.tryParse('${widget.medico['contactoMedico']?['longitud']}');
     if (latitud != null && longitud != null) {
       markers.add(Marker(
         markerId: MarkerId("medicoLocation"),
@@ -74,8 +75,8 @@ class _ContactoTabState extends State<ContactoTab> {
 
     // Ubicación del emprendimiento.
     final LatLng medicoLocation = LatLng(
-        double.tryParse('${widget.medico['contacto']['latitud']}') ?? 0,
-        double.tryParse('${widget.medico['contacto']['longitud']}') ?? 0);
+        double.tryParse('${widget.medico['contactoMedico']['latitud']}') ?? 0,
+        double.tryParse('${widget.medico['contactoMedico']['longitud']}') ?? 0);
 
     // Crear LatLngBounds
     final LatLngBounds bounds = LatLngBounds(
@@ -98,7 +99,7 @@ class _ContactoTabState extends State<ContactoTab> {
     try {
       final updatedMedico = await fetchMedicoDetails(widget.medico['id']);
       setState(() {
-        contacto = updatedMedico['contacto'] ?? {};
+        contacto = updatedMedico['contactoMedico'] ?? {};
         markers.clear();
         final latitud = double.tryParse('${contacto['latitud']}');
         final longitud = double.tryParse('${contacto['longitud']}');
@@ -118,7 +119,8 @@ class _ContactoTabState extends State<ContactoTab> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
+    //final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
+    final String url = 'http://192.168.100.6:8001/medicos/$medicoId';
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -182,11 +184,12 @@ class _ContactoTabState extends State<ContactoTab> {
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
-            if (contacto['imagenesContacto'] != null &&
-                (contacto['imagenesContacto'] as List).isNotEmpty)
-              ...contacto['imagenesContacto']
+            if (contacto['imagenesContactoMedico'] != null &&
+                (contacto['imagenesContactoMedico'] as List).isNotEmpty)
+              ...contacto['imagenesContactoMedico']
                   .map((img) => Image.network(
-                        'http://127.0.0.1:8000${img['imagen']}',
+                        //'http://127.0.0.1:8000${img['imagen']}',
+                        'http://192.168.100.6:8000${img['imagen']}',
                         fit: BoxFit.cover,
                       ))
                   .toList()

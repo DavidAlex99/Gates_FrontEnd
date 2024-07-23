@@ -48,8 +48,8 @@ class _ResenaFormPageState extends State<ResenaFormPage> {
 
       final response = await http.post(
         Uri.parse(
-            //"http://192.168.100.6:8001/medicos/${widget.medicoId}/reseña/"),
-            "http://127.0.0.1:8000/medicos/${widget.medicoId}/reseña/"),
+            "http://192.168.100.6:8001/medicos/${widget.medicoId}/reseña/"),
+        //"http://127.0.0.1:8000/medicos/${widget.medicoId}/reseña/"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Token $token',

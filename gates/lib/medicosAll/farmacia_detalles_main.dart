@@ -5,6 +5,8 @@ import '../buzonQueja/quejasFarmacia_tab.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../login/auth_service.dart';
+import '../login/login_page.dart';
 
 class FarmaciaDetallesPage extends StatefulWidget {
   final Map farmacia;
@@ -39,7 +41,8 @@ class _FarmaciaDetallesPageState extends State<FarmaciaDetallesPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    final String url = 'http://127.0.0.1:8000/farmacias/$farmaciaId';
+    //final String url = 'http://127.0.0.1:8000/farmacias/$farmaciaId';
+    final String url = 'http://192.168.100.6:8001/farmacias/$farmaciaId';
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -52,6 +55,13 @@ class _FarmaciaDetallesPageState extends State<FarmaciaDetallesPage> {
     } else {
       throw Exception('Failed to load farmacia details');
     }
+  }
+
+  void _logout() async {
+    await AuthService().logout();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
   }
 
   void _openQuejasFarmaciaTab() {
@@ -70,6 +80,10 @@ class _FarmaciaDetallesPageState extends State<FarmaciaDetallesPage> {
             IconButton(
               icon: Icon(Icons.report_problem),
               onPressed: _openQuejasFarmaciaTab,
+            ),
+            IconButton(
+              icon: Icon(Icons.exit_to_app),
+              onPressed: _logout,
             ),
           ],
           bottom: TabBar(
