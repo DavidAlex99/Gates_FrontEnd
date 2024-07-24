@@ -37,7 +37,6 @@ class _MedicamentosTabState extends State<MedicamentosTab> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    //final String url = 'http://127.0.0.1:8000/farmacias/$farmaciaId';
     final String url = 'http://192.168.100.6:8001/farmacias/$farmaciaId';
     final response = await http.get(
       Uri.parse(url),
@@ -72,13 +71,10 @@ class _MedicamentosTabState extends State<MedicamentosTab> {
                       height: 100,
                       fit: BoxFit.cover,
                     )
-                  : SizedBox(
-                      width: 100,
-                      height: 100), // Un placeholder o espacio vacío
+                  : SizedBox(width: 100, height: 100),
               trailing: IconButton(
                 icon: Icon(Icons.info_outline),
                 onPressed: () {
-                  // Navegar a la nueva página de detalles
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) =>
                         DetalleMedicamentoPage(medicamento: medicamento),

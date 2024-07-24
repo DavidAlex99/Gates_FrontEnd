@@ -37,7 +37,6 @@ class _ServiciosTabState extends State<ServiciosTab> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    //final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
     final String url = 'http://192.168.100.6:8001/medicos/$medicoId';
     final response = await http.get(
       Uri.parse(url),
@@ -67,19 +66,15 @@ class _ServiciosTabState extends State<ServiciosTab> {
               subtitle: Text(servicio['descripcion']),
               leading: servicio['imagen'] != null
                   ? Image.network(
-                      //'http://127.0.0.1:8000${servicio['imagen']}',
                       'http://192.168.100.6:8001${servicio['imagen']}',
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
                     )
-                  : SizedBox(
-                      width: 100,
-                      height: 100), // Un placeholder o espacio vacío
+                  : SizedBox(width: 100, height: 100),
               trailing: IconButton(
                 icon: Icon(Icons.info_outline),
                 onPressed: () {
-                  // Navegar a la nueva página de detalles
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) =>
                         DetalleServicioPage(servicio: servicio),

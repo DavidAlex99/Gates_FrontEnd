@@ -19,14 +19,12 @@ class ContactoTab extends StatefulWidget {
 class _ContactoTabState extends State<ContactoTab> {
   late Map contacto;
   late GoogleMapController mapController;
-  // para arcar la ubicacion del cliente
   Set<Marker> markers = {};
 
   @override
   void initState() {
     super.initState();
     contacto = widget.medico['contacto'] ?? {};
-    // Inicializar el marcador del emprendimiento desde el inicio.
     final latitud =
         double.tryParse('${widget.medico['contactoMedico']?['latitud']}');
     final longitud =
@@ -43,27 +41,21 @@ class _ContactoTabState extends State<ContactoTab> {
     mapController = controller;
   }
 
-  // obtener permiso ubicacion del cliente
   Future<void> _getUserLocation() async {
-    // Verifica y solicita los permisos de ubicación.
     var status = await Permission.locationWhenInUse.status;
     if (status.isDenied) {
-      // Los permisos están denegados, solicítalos.
       status = await Permission.locationWhenInUse.request();
       if (status.isDenied) {
-        // Los permisos fueron denegados definitivamente.
         print('Permiso de ubicación denegado');
         return;
       }
     }
 
     if (status.isPermanentlyDenied) {
-      // Los permisos están denegados permanentemente, dirige al usuario a la configuración.
       openAppSettings();
       return;
     }
 
-    // Asumiendo que ya has añadido el marcador del emprendimiento y del usuario a 'markers'
     final position = await Geolocator.getCurrentPosition();
     setState(() {
       markers.add(Marker(
@@ -73,12 +65,10 @@ class _ContactoTabState extends State<ContactoTab> {
       ));
     });
 
-    // Ubicación del emprendimiento.
     final LatLng medicoLocation = LatLng(
         double.tryParse('${widget.medico['contactoMedico']['latitud']}') ?? 0,
         double.tryParse('${widget.medico['contactoMedico']['longitud']}') ?? 0);
 
-    // Crear LatLngBounds
     final LatLngBounds bounds = LatLngBounds(
       southwest: LatLng(
         min(medicoLocation.latitude, position.latitude),
@@ -90,10 +80,8 @@ class _ContactoTabState extends State<ContactoTab> {
       ),
     );
 
-    // Ajustar la cámara para mostrar ambos marcadores
     mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
   }
-  // fin obtener permiso ubicacion del cliente
 
   Future<void> _refreshContactInfo() async {
     try {
@@ -119,7 +107,6 @@ class _ContactoTabState extends State<ContactoTab> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    //final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
     final String url = 'http://192.168.100.6:8001/medicos/$medicoId';
     final response = await http.get(
       Uri.parse(url),
@@ -188,7 +175,6 @@ class _ContactoTabState extends State<ContactoTab> {
                 (contacto['imagenesContactoMedico'] as List).isNotEmpty)
               ...contacto['imagenesContactoMedico']
                   .map((img) => Image.network(
-                        //'http://127.0.0.1:8000${img['imagen']}',
                         'http://192.168.100.6:8000${img['imagen']}',
                         fit: BoxFit.cover,
                       ))

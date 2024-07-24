@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../perfil/perfil_tab.dart';
 import '../servicios/servicios_tab.dart';
-import '../contacto/contacto_tab.dart'; // Asegúrate de crear este archivo.
-import '../citas/citas_tab.dart'; // Asegúrate de crear este archivo.
+import '../contacto/contacto_tab.dart';
+import '../citas/citas_tab.dart';
 import '../buzonQueja/quejas_tab.dart';
 import '../resenas/resenas_tab.dart';
 import 'package:http/http.dart' as http;
@@ -47,11 +47,10 @@ class _MedicoDetallesPageState extends State<MedicoDetallesPage> {
     print(token);
 
     final String url = 'http://192.168.100.6:8001/medicos/$medicoId';
-    //final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
     final response = await http.get(
       Uri.parse(url),
       headers: {
-        'Authorization': 'Token $token', // Añadir el encabezado de autorización
+        'Authorization': 'Token $token',
       },
     );
 
@@ -77,7 +76,7 @@ class _MedicoDetallesPageState extends State<MedicoDetallesPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5, // Número de pestañas
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.medico['nombre'] ?? 'Detalle del Medico'),

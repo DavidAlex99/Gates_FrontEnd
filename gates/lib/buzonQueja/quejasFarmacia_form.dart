@@ -48,7 +48,6 @@ class _QuejaFarmaciaFormPageState extends State<QuejaFarmaciaFormPage> {
       final response = await http.post(
         Uri.parse(
             "http://192.168.100.6:8001/farmacias/${widget.farmaciaId}/crear_queja/"),
-        //"http://127.0.0.1:8000/farmacias/${widget.farmaciaId}/crear_queja/"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Token $token',

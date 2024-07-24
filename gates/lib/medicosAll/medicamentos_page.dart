@@ -9,10 +9,9 @@ import 'package:permission_handler/permission_handler.dart';
 Future<Map> fetchFarmaciaDetails(int farmaciaId) async {
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('token');
-  print("Token is: $token"); // Esto mostrará el token en la consola.
+  print("Token is: $token");
 
   final String url = 'http://192.168.100.6:8001/farmacias/$farmaciaId';
-  //final String url = 'http://127.0.0.1:8000/farmacias/$farmaciaId';
   final response = await http.get(
     Uri.parse(url),
     headers: token != null ? {'Authorization': 'Token $token'} : {},
@@ -51,17 +50,15 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
       });
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token =
-          prefs.getString('token'); // Obtener el token de SharedPreferences
+      String? token = prefs.getString('token');
       print('token en fetchMedicamentosInicial:');
       print(token);
 
       final url = 'http://192.168.100.6:8001/medicamentos';
-      //final url = 'http://127.0.0.1:8000/medicamentos';
       final response = await http.get(
         Uri.parse(url),
         headers: {
-          'Authorization': 'Token $token', // Añadir el token al encabezado
+          'Authorization': 'Token $token',
         },
       );
 
@@ -96,8 +93,7 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
         Position position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high);
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? token =
-            prefs.getString('token'); // Obtener el token de SharedPreferences
+        String? token = prefs.getString('token');
         print('token en fetchFarmaciasCercanos:');
         print(token);
 
@@ -107,7 +103,6 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
         };
         var uri = Uri.http(
             '192.168.100.6:8001', '/medicamentos/cercanos', queryParams);
-        //'127.0.0.1:8000','/medicamentos/cercanos',queryParams);
         final response = await http.get(uri, headers: {
           'Authorization': 'Token $token',
         });
@@ -116,11 +111,8 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
           setState(() {
             medicamentos = json.decode(response.body);
           });
-        } else {
-          // Manejar el error de carga
-        }
+        } else {}
       } catch (e) {
-        // Manejar el error
       } finally {
         setState(() {
           loading = false;
@@ -150,24 +142,20 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
   }
 
   void aplicarFiltros() {
-    filteredMedicamentos =
-        List.from(medicamentos); // Crear una copia de los servicios
+    filteredMedicamentos = List.from(medicamentos);
 
-    // Filtrado por precio
     if (filtroPrecio == 'Ascendente') {
       filteredMedicamentos.sort((a, b) => (a['precio']).compareTo(b['precio']));
     } else if (filtroPrecio == 'Descendente') {
       filteredMedicamentos.sort((a, b) => (b['precio']).compareTo(a['precio']));
     }
 
-    // Orden alfabético
     if (filtroAlfabetico == 'Ascendente') {
       filteredMedicamentos.sort((a, b) => a['nombre'].compareTo(b['nombre']));
     } else if (filtroAlfabetico == 'Descendente') {
       filteredMedicamentos.sort((a, b) => b['nombre'].compareTo(a['nombre']));
     }
 
-    // Filtrado por búsqueda de texto
     if (searchController.text.isNotEmpty) {
       filteredMedicamentos = filteredMedicamentos.where((medicamento) {
         return medicamento['nombre']
@@ -187,8 +175,7 @@ class _MedicamentosPageState extends State<MedicamentosPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.location_on),
-            onPressed:
-                fetchMedicamentosCercanos, // Este método aún necesita ser implementado
+            onPressed: fetchMedicamentosCercanos,
           ),
           DropdownButton<String>(
             value: filtroPrecio,

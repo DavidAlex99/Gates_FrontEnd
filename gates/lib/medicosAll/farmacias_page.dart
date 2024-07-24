@@ -10,17 +10,15 @@ import './medicos_page.dart';
 
 Future<Map> fetchFarmaciaDetails(int farmaciaId) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token =
-      prefs.getString('token'); // Obtener el token de SharedPreferences
+  String? token = prefs.getString('token');
   print('token en fetchFarmaciaDetails:');
   print(token);
 
   final String url = 'http://192.168.100.6:8001/farmacias/$farmaciaId';
-  //final String url = 'http://127.0.0.1:8000/farmacias/$farmaciaId';
   final response = await http.get(
     Uri.parse(url),
     headers: {
-      'Authorization': 'Token $token', // Añadir el encabezado de autorización
+      'Authorization': 'Token $token',
     },
   );
 
@@ -41,7 +39,6 @@ class FarmaciasPage extends StatefulWidget {
 }
 
 class _FarmaciasPageState extends State<FarmaciasPage> {
-  //String selectedEspecialidad = 'Todos';
   bool loading = false;
   List<dynamic> farmacias = [];
 
@@ -63,7 +60,6 @@ class _FarmaciasPageState extends State<FarmaciasPage> {
       });
 
       final url = 'http://192.168.100.6:8001/farmacias';
-      //final url = 'http://127.0.0.1:8000/farmacias';
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -81,9 +77,8 @@ class _FarmaciasPageState extends State<FarmaciasPage> {
           });
         } else {
           print('No hay farmacias disponibles.');
-          // Manejo de no hay datos
           setState(() {
-            farmacias = []; // Asegúrate de manejar una lista vacía en el UI
+            farmacias = [];
           });
         }
       } else {
@@ -118,7 +113,7 @@ class _FarmaciasPageState extends State<FarmaciasPage> {
             desiredAccuracy: LocationAccuracy.high);
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? token = prefs.getString('token'); // Obtener el token guardado
+        String? token = prefs.getString('token');
 
         if (token == null) {
           throw Exception('Authentication token not available');
@@ -128,13 +123,12 @@ class _FarmaciasPageState extends State<FarmaciasPage> {
         print(token);
 
         final uri = Uri.http('192.168.100.6:8001', '/farmacias/cercanos', {
-          //final uri = Uri.http('127.0.0.1:8000', '/farmacias/cercanos', {
           'lat': position.latitude.toString(),
           'lon': position.longitude.toString()
         });
 
         final response = await http.get(uri, headers: {
-          'Authorization': 'Token $token', // Añadir el token al encabezado
+          'Authorization': 'Token $token',
         });
 
         if (response.statusCode == 200) {
@@ -216,9 +210,8 @@ class _FarmaciasPageState extends State<FarmaciasPage> {
               leading: Icon(Icons.local_hospital),
               title: Text('Médicos'),
               onTap: () {
-                Navigator.pop(context); // Cierra el drawer
+                Navigator.pop(context);
                 Navigator.pushReplacement(
-                  // Navega sin duplicar la misma vista
                   context,
                   MaterialPageRoute(
                       builder: (context) => MedicosPage(userId: widget.userId)),
@@ -229,9 +222,8 @@ class _FarmaciasPageState extends State<FarmaciasPage> {
               leading: Icon(Icons.store),
               title: Text('Farmacias'),
               onTap: () {
-                Navigator.pop(context); // Cierra el drawer
+                Navigator.pop(context);
                 Navigator.pushReplacement(
-                  // Cambia a la página de farmacias
                   context,
                   MaterialPageRoute(
                       builder: (context) =>

@@ -9,10 +9,9 @@ import 'package:permission_handler/permission_handler.dart';
 Future<Map> fetchMedicoDetails(int medicoId) async {
   final prefs = await SharedPreferences.getInstance();
   final String? token = prefs.getString('token');
-  print("Token is: $token"); // Esto mostrará el token en la consola.
+  print("Token is: $token");
 
   final String url = 'http://192.168.100.6:8001/medicos/$medicoId';
-  //final String url = 'http://127.0.0.1:8000/medicos/$medicoId';
   final response = await http.get(
     Uri.parse(url),
     headers: token != null ? {'Authorization': 'Token $token'} : {},
@@ -51,17 +50,15 @@ class _ServiciosPageState extends State<ServiciosPage> {
       });
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token =
-          prefs.getString('token'); // Obtener el token de SharedPreferences
+      String? token = prefs.getString('token');
       print('token en fetchServiciosInicial:');
       print(token);
 
       final url = 'http://192.168.100.6:8001/servicios';
-      //final url = 'http://127.0.0.1:8000/servicios';
       final response = await http.get(
         Uri.parse(url),
         headers: {
-          'Authorization': 'Token $token', // Añadir el token al encabezado
+          'Authorization': 'Token $token',
         },
       );
 
@@ -96,8 +93,7 @@ class _ServiciosPageState extends State<ServiciosPage> {
         Position position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high);
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? token =
-            prefs.getString('token'); // Obtener el token de SharedPreferences
+        String? token = prefs.getString('token');
         print('token en fetchServiciosCercanos:');
         print(token);
 
@@ -107,7 +103,6 @@ class _ServiciosPageState extends State<ServiciosPage> {
         };
         var uri =
             Uri.http('192.168.100.6:8001', '/servicios/cercanos', queryParams);
-        //Uri.http('127.0.0.1:8000', '/servicios/cercanos', queryParams);
         final response = await http.get(uri, headers: {
           'Authorization': 'Token $token',
         });
@@ -116,11 +111,8 @@ class _ServiciosPageState extends State<ServiciosPage> {
           setState(() {
             servicios = json.decode(response.body);
           });
-        } else {
-          // Manejar el error de carga
-        }
+        } else {}
       } catch (e) {
-        // Manejar el error
       } finally {
         setState(() {
           loading = false;
@@ -150,24 +142,20 @@ class _ServiciosPageState extends State<ServiciosPage> {
   }
 
   void aplicarFiltros() {
-    filteredServicios =
-        List.from(servicios); // Crear una copia de los servicios
+    filteredServicios = List.from(servicios);
 
-    // Filtrado por precio
     if (filtroPrecio == 'Ascendente') {
       filteredServicios.sort((a, b) => (a['precio']).compareTo(b['precio']));
     } else if (filtroPrecio == 'Descendente') {
       filteredServicios.sort((a, b) => (b['precio']).compareTo(a['precio']));
     }
 
-    // Orden alfabético
     if (filtroAlfabetico == 'Ascendente') {
       filteredServicios.sort((a, b) => a['nombre'].compareTo(b['nombre']));
     } else if (filtroAlfabetico == 'Descendente') {
       filteredServicios.sort((a, b) => b['nombre'].compareTo(a['nombre']));
     }
 
-    // Filtrado por búsqueda de texto
     if (searchController.text.isNotEmpty) {
       filteredServicios = filteredServicios.where((servicio) {
         return servicio['nombre']
@@ -187,8 +175,7 @@ class _ServiciosPageState extends State<ServiciosPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.location_on),
-            onPressed:
-                fetchServiciosCercanos, // Este método aún necesita ser implementado
+            onPressed: fetchServiciosCercanos,
           ),
           DropdownButton<String>(
             value: filtroPrecio,

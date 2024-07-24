@@ -15,13 +15,11 @@ class ContactoFarmaciaTab extends StatefulWidget {
 
 class _ContactoFarmaciaTabState extends State<ContactoFarmaciaTab> {
   late GoogleMapController mapController;
-  // para arcar la ubicacion del cliente
   Set<Marker> markers = {};
 
   @override
   void initState() {
     super.initState();
-    // Inicializar el marcador del emprendimiento desde el inicio.
     final latitud =
         double.tryParse('${widget.farmacia['contactoFarmacia']?['latitud']}');
     final longitud =
@@ -38,27 +36,21 @@ class _ContactoFarmaciaTabState extends State<ContactoFarmaciaTab> {
     mapController = controller;
   }
 
-  // obtener permiso ubicacion del cliente
   Future<void> _getUserLocation() async {
-    // Verifica y solicita los permisos de ubicación.
     var status = await Permission.locationWhenInUse.status;
     if (status.isDenied) {
-      // Los permisos están denegados, solicítalos.
       status = await Permission.locationWhenInUse.request();
       if (status.isDenied) {
-        // Los permisos fueron denegados definitivamente.
         print('Permiso de ubicación denegado');
         return;
       }
     }
 
     if (status.isPermanentlyDenied) {
-      // Los permisos están denegados permanentemente, dirige al usuario a la configuración.
       openAppSettings();
       return;
     }
 
-    // Asumiendo que ya has añadido el marcador del emprendimiento y del usuario a 'markers'
     final position = await Geolocator.getCurrentPosition();
     setState(() {
       markers.add(Marker(
@@ -68,14 +60,12 @@ class _ContactoFarmaciaTabState extends State<ContactoFarmaciaTab> {
       ));
     });
 
-    // Ubicación del emprendimiento.
     final LatLng farmaciaLocation = LatLng(
         double.tryParse('${widget.farmacia['contactoFarmacia']['latitud']}') ??
             0,
         double.tryParse('${widget.farmacia['contactoFarmacia']['longitud']}') ??
             0);
 
-    // Crear LatLngBounds
     final LatLngBounds bounds = LatLngBounds(
       southwest: LatLng(
         min(farmaciaLocation.latitude, position.latitude),
@@ -87,10 +77,8 @@ class _ContactoFarmaciaTabState extends State<ContactoFarmaciaTab> {
       ),
     );
 
-    // Ajustar la cámara para mostrar ambos marcadores
     mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
   }
-  // fin obtener permiso ubicacion del cliente
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +133,6 @@ class _ContactoFarmaciaTabState extends State<ContactoFarmaciaTab> {
             ...contactoFarmacia['imagenesContactoFarmacia']
                 .map((img) => Image.network(
                       'http://192.168.100.6:8001${img['imagen']}',
-                      //'http://127.0.0.1:8000${img['imagen']}',
                       fit: BoxFit.cover,
                     ))
                 .toList()

@@ -8,7 +8,6 @@ class DetalleMedicamentoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Aquí podrías agregar más campos si están disponibles en el mapa de comida
     return Scaffold(
       appBar: AppBar(
         title: Text(medicamento['nombre']),
@@ -19,12 +18,11 @@ class DetalleMedicamentoPage extends StatelessWidget {
             medicamento['imagen'] != null
                 ? Image.network(
                     'http://192.168.100.6:8001${medicamento['imagen']}',
-                    //'http://127.0.0.1:8000${medicamento['imagen']}',
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,
                   )
-                : SizedBox(height: 300), // Un placeholder o espacio vacío
+                : SizedBox(height: 300),
             Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
@@ -32,7 +30,6 @@ class DetalleMedicamentoPage extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
-            // Puedes añadir más Widgets aquí para mostrar toda la información que quieras
           ],
         ),
       ),

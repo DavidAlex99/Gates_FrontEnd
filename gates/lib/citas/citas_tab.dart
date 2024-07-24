@@ -34,8 +34,7 @@ class _CitasTabState extends State<CitasTab>
   Future<void> fetchCitasDisponibles() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token =
-          prefs.getString('token'); // Obtener el token de SharedPreferences
+      String? token = prefs.getString('token');
       print('token en _fetchResenas:');
       print(token);
 
@@ -46,7 +45,6 @@ class _CitasTabState extends State<CitasTab>
       final response = await http.get(
         Uri.parse(
             'http://192.168.100.6:8001/medicos/${widget.medico['id']}/citas/'),
-        //'http://127.0.0.1:8000/medicos/${widget.medico['id']}/citas/'),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Token $token',
@@ -71,8 +69,7 @@ class _CitasTabState extends State<CitasTab>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print("prefs contenido");
     print(prefs.getInt('userId'));
-    int? userId = prefs.getInt(
-        'userId'); // Asegúrate de que este valor se guarda cuando el usuario se loguea
+    int? userId = prefs.getInt('userId');
 
     if (userId == null) {
       print('userId ID is not available');
@@ -81,12 +78,10 @@ class _CitasTabState extends State<CitasTab>
 
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token =
-          prefs.getString('token'); // Obtener el token de SharedPreferences
+      String? token = prefs.getString('token');
       print("token en fetchCitasReservadas");
       print(token);
-      int? userId = prefs.getInt(
-          'userId'); // Asegúrate de que este valor se guarda cuando el usuario se loguea
+      int? userId = prefs.getInt('userId');
 
       if (userId == null) {
         print('userId ID is not available');
@@ -99,7 +94,6 @@ class _CitasTabState extends State<CitasTab>
       final response = await http.get(
         Uri.parse(
             'http://192.168.100.6:8001/medicos/${widget.medico['id']}/citas/$userId/reservadas/'),
-        //'http://127.0.0.1:8000/medicos/${widget.medico['id']}/citas/$userId/reservadas/'),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Token $token',
@@ -108,8 +102,7 @@ class _CitasTabState extends State<CitasTab>
 
       if (response.statusCode == 200) {
         setState(() {
-          citasReservadas = json.decode(
-              response.body); // Asume que el backend devuelve un array JSON
+          citasReservadas = json.decode(response.body);
         });
       } else {
         throw Exception('Failed to load reserved citas');
@@ -138,8 +131,7 @@ class _CitasTabState extends State<CitasTab>
       body: TabBarView(
         controller: _tabController,
         children: [
-          buildCitasList(
-              citasDisponibles), // Usa un método para construir la lista
+          buildCitasList(citasDisponibles),
           buildCitasList(citasReservadas),
         ],
       ),
@@ -164,7 +156,7 @@ class _CitasTabState extends State<CitasTab>
                   builder: (context) =>
                       PaymentScreen(precio: precio, citaId: citas[index]['id']),
                 ),
-              ).then((_) => fetchCitas()); // Recargar citas al regresar
+              ).then((_) => fetchCitas());
             },
           );
         },

@@ -41,7 +41,6 @@ class _FarmaciaDetallesPageState extends State<FarmaciaDetallesPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    //final String url = 'http://127.0.0.1:8000/farmacias/$farmaciaId';
     final String url = 'http://192.168.100.6:8001/farmacias/$farmaciaId';
     final response = await http.get(
       Uri.parse(url),
@@ -72,7 +71,7 @@ class _FarmaciaDetallesPageState extends State<FarmaciaDetallesPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, // Número de pestañas
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.farmacia['nombre'] ?? 'Detalle de farmacia'),

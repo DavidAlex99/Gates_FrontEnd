@@ -36,8 +36,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
-            // print the loading progress to the console
-            // you can use this value to show a progress bar if you want
             debugPrint("Loading: $progress%");
           },
           onPageStarted: (String url) {},
@@ -55,8 +53,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print("prefs contenido");
     print(prefs.getInt('userId'));
-    int? userId = prefs.getInt(
-        'userId'); // Asegúrate de que este valor se guarda cuando el usuario se loguea
+    int? userId = prefs.getInt('userId');
 
     if (userId == null) {
       print('userId ID is not available');
@@ -66,7 +63,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final response = await http.get(
       Uri.parse(
         'http://192.168.100.6:8001/create_payment/${widget.precio.toStringAsFixed(2)}/${widget.citaId}/$userId',
-        //'http://127.0.0.1:8000/create_payment/${widget.precio.toStringAsFixed(2)}/${widget.citaId}/$userId',
       ),
     );
 
@@ -74,102 +70,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       final jsonData = jsonDecode(response.body);
       final approvalUrl = jsonData['approval_url'];
 
-      // Load the approval URL in the WebView
       _controller.loadRequest(Uri.parse(approvalUrl));
-    } else {
-      // Handle error
-    }
+    } else {}
   }
 }
-
-/*
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import './pago_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-class CitasTab extends StatefulWidget {
-  final Map medico;
-
-  CitasTab({Key? key, required this.medico}) : super(key: key);
-
-  @override
-  _CitasTabState createState() => _CitasTabState();
-}
-
-class _CitasTabState extends State<CitasTab> {
-  List citas = [];
-
-  @override
-  void initState() {
-    super.initState();
-    fetchCitas();
-  }
-
-  Future<void> fetchCitas() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token =
-          prefs.getString('token'); // Obtener el token de SharedPreferences
-      print('token en _fetchResenas:');
-      print(token);
-
-      if (token == null) {
-        throw Exception('Authentication token is not available.');
-      }
-
-      final response = await http.get(
-        Uri.parse(
-            'http://192.168.100.6:8001/gatesApp/medicos/${widget.medico['id']}/citas/'),
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Token $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          citas = json.decode(response.body);
-        });
-      } else {
-        throw Exception('Failed to load citas');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar las reseñas: ${e.toString()}')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Citas Disponibles")),
-      body: RefreshIndicator(
-        onRefresh: fetchCitas,
-        child: ListView.builder(
-          itemCount: citas.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(
-                  '${citas[index]['fecha_hora_inicio']} - ${citas[index]['fecha_hora_fin']}'),
-              subtitle: Text('Precio: ${citas[index]['precio']} USD'),
-              onTap: () {
-                double precio = double.parse(citas[index]['precio'].toString());
-                Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => PaymentScreen(
-                                precio: precio, citaId: citas[index]['id'])))
-                    .then((_) => fetchCitas()); // Recargar citas al regresar
-              },
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-*/

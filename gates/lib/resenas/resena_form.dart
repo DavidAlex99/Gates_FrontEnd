@@ -49,7 +49,6 @@ class _ResenaFormPageState extends State<ResenaFormPage> {
       final response = await http.post(
         Uri.parse(
             "http://192.168.100.6:8001/medicos/${widget.medicoId}/reseña/"),
-        //"http://127.0.0.1:8000/medicos/${widget.medicoId}/reseña/"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Token $token',
@@ -64,8 +63,7 @@ class _ResenaFormPageState extends State<ResenaFormPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Reseña enviada con éxito')),
         );
-        Navigator.pop(
-            context); // Regresa a la página anterior tras enviar la reseña
+        Navigator.pop(context);
       } else {
         throw Exception(
             'Failed to send review. Status code: ${response.statusCode}');

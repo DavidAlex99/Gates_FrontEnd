@@ -1,4 +1,3 @@
-// clase para guardar la informacion del usuario que e registra o inicia sesion
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionManager {

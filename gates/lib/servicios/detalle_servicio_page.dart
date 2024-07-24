@@ -18,12 +18,11 @@ class DetalleServicioPage extends StatelessWidget {
             servicio['imagen'] != null
                 ? Image.network(
                     'http://192.168.100.6:8001${servicio['imagen']}',
-                    //'http://127.0.0.1:8000${servicio['imagen']}',
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,
                   )
-                : SizedBox(height: 300), // Un placeholder o espacio vacío
+                : SizedBox(height: 300),
             Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
@@ -31,7 +30,6 @@ class DetalleServicioPage extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
-            // Puedes añadir más Widgets aquí para mostrar toda la información que quieras
           ],
         ),
       ),
